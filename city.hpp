@@ -62,7 +62,7 @@
 #ifndef LLCPP_CITY_HASH_HPP_
 #define LLCPP_CITY_HASH_HPP_
 
-#include "llcppheaders/llanytypeslib.hpp"
+#include <llanytypeslib.hpp>
 
 namespace city {
 
@@ -72,29 +72,28 @@ inline ui64 Uint128Low64(const ui128& x) { return x.first; }
 inline ui64 Uint128High64(const ui128& x) { return x.second; }
 
 // Hash function for a byte array.
-ui64 CityHash64(ll_string_t buf, len_t len);
+LL_SHARED_LIB ui64 CityHash64(ll_string_t buf, len_t len);
 
 // Hash function for a byte array.  For convenience, a 64-bit seed is also
 // hashed into the result.
-ui64 CityHash64WithSeed(ll_string_t buf, len_t len, ui64 seed);
+LL_SHARED_LIB ui64 CityHash64WithSeed(ll_string_t buf, len_t len, ui64 seed);
 
 // Hash function for a byte array.  For convenience, two seeds are also
 // hashed into the result.
-ui64 CityHash64WithSeeds(ll_string_t buf, len_t len, ui64 seed0, ui64 seed1);
+LL_SHARED_LIB ui64 CityHash64WithSeeds(ll_string_t buf, len_t len, ui64 seed0, ui64 seed1);
 
-// Hash function for a byte array.
-ui128 CityHash128(ll_string_t s, len_t len);
+// Proxy linkage for C
+LL_SHARED_LIB void CityHash128(ll_string_t s, len_t len, ui128& result);
 
-// Hash function for a byte array.  For convenience, a 128-bit seed is also
-// hashed into the result.
-ui128 CityHash128WithSeed(ll_string_t s, len_t len, ui128 seed);
+// Proxy linkage for C
+LL_SHARED_LIB void CityHash128WithSeed(ll_string_t s, len_t len, ui128 seed, ui128& result);
 
 // Hash function for a byte array.  Most useful in 32-bit binaries.
-ui32 CityHash32(ll_string_t buf, len_t len);
+LL_SHARED_LIB ui32 CityHash32(ll_string_t buf, len_t len);
 
 // Hash 128 input bits down to 64 bits of output.
 // This is intended to be a reasonably good hash function.
-inline ui64 Hash128to64(const ui128& x) {
+LL_SHARED_LIB inline ui64 Hash128to64(const ui128& x) {
   // Murmur-inspired hashing.
   const ui64 kMul = 0x9ddfea08eb382d69ULL;
   ui64 a = (Uint128Low64(x) ^ Uint128High64(x)) * kMul;
@@ -106,6 +105,13 @@ inline ui64 Hash128to64(const ui128& x) {
 }
 
 } /* Extern C */
+
+// Hash function for a byte array.
+LL_SHARED_LIB ui128 CityHash128(ll_string_t s, len_t len);
+
+// Hash function for a byte array.  For convenience, a 128-bit seed is also
+// hashed into the result.
+LL_SHARED_LIB ui128 CityHash128WithSeed(ll_string_t s, len_t len, ui128 seed);
 
 } /* namespace city */
 
