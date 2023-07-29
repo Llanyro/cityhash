@@ -62,7 +62,7 @@
 #ifndef LLCPP_HASH_CITY_HASH_HPP_
 #define LLCPP_HASH_CITY_HASH_HPP_
 
-#include "llcppheaders/llanytypeslib.h"
+#include "llcppheaders/llanytypeslib.hpp"
 
 namespace city {
 
@@ -73,12 +73,6 @@ inline ui64 Uint128High64(const ui128& x) { return x.second; }
 
 // Hash function for a byte array.
 ui64 CityHash64(ll_string_t buf, len_t len);
-/*
-*	Allocates an array to store ALL content of file
-*	Then uses CityHash64 to hash the file
-*	Obviously is slower than giving the array and the size...
-*/
-ui64 CityHash64(ll_string_t filename);
 
 // Hash function for a byte array.  For convenience, a 64-bit seed is also
 // hashed into the result.
