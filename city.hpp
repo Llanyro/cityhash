@@ -59,8 +59,8 @@
 // of a+b is easily derived from the hashes of a and b.  This property
 // doesn't hold for any hash functions in this file.
 
-#ifndef LLCPP_HASH_CITY_HASH_HPP_
-#define LLCPP_HASH_CITY_HASH_HPP_
+#ifndef LLCPP_CITY_HASH_HPP_
+#define LLCPP_CITY_HASH_HPP_
 
 #include "llcppheaders/llanytypeslib.hpp"
 
@@ -109,4 +109,4 @@ inline ui64 Hash128to64(const ui128& x) {
 
 } /* namespace city */
 
-#endif  // LLCPP_HASH_CITY_HASH_HPP_
+#endif  // LLCPP_CITY_HASH_HPP_
