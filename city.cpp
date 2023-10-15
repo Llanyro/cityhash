@@ -35,14 +35,14 @@
 
 namespace city {
 
-ui64 UNALIGNED_LOAD64(ll_string_t p) {
-  ui64 result;
+llcpp::ui64 UNALIGNED_LOAD64(llcpp::ll_string_t p) {
+  llcpp::ui64 result;
   std::memcpy(&result, p, sizeof(result));
   return result;
 }
 
-ui32 UNALIGNED_LOAD32(ll_string_t p) {
-  ui32 result;
+llcpp::ui32 UNALIGNED_LOAD32(llcpp::ll_string_t p) {
+  llcpp::ui32 result;
   std::memcpy(&result, p, sizeof(result));
   return result;
 }
@@ -109,25 +109,25 @@ ui32 UNALIGNED_LOAD32(ll_string_t p) {
 #endif
 #endif
 
-ui64 Fetch64(ll_string_t p) {
+llcpp::ui64 Fetch64(llcpp::ll_string_t p) {
   return ui64_in_expected_order(UNALIGNED_LOAD64(p));
 }
 
-ui32 Fetch32(ll_string_t p) {
+llcpp::ui32 Fetch32(llcpp::ll_string_t p) {
   return ui32_in_expected_order(UNALIGNED_LOAD32(p));
 }
 
 // Some primes between 2^63 and 2^64 for various uses.
-constexpr ui64 k0 = 0xc3a5c85c97cb3127ULL;
-constexpr ui64 k1 = 0xb492b66fbe98f273ULL;
-constexpr ui64 k2 = 0x9ae16a3b2f90404fULL;
+constexpr llcpp::ui64 k0 = 0xc3a5c85c97cb3127ULL;
+constexpr llcpp::ui64 k1 = 0xb492b66fbe98f273ULL;
+constexpr llcpp::ui64 k2 = 0x9ae16a3b2f90404fULL;
 
 // Magic numbers for 32-bit hashing.  Copied from Murmur3.
-constexpr ui32 c1 = 0xcc9e2d51;
-constexpr ui32 c2 = 0x1b873593;
+constexpr llcpp::ui32 c1 = 0xcc9e2d51;
+constexpr llcpp::ui32 c2 = 0x1b873593;
 
 // A 32-bit to 32-bit integer hash copied from Murmur3.
-ui32 fmix(ui32 h) {
+llcpp::ui32 fmix(llcpp::ui32 h) {
   h ^= h >> 16;
   h *= 0x85ebca6b;
   h ^= h >> 13;
@@ -136,7 +136,7 @@ ui32 fmix(ui32 h) {
   return h;
 }
 
-ui32 Rotate32(ui32 val, int shift) {
+llcpp::ui32 Rotate32(const llcpp::ui32 val, const llcpp::i32 shift) {
   // Avoid shifting by 32: doing so yields an undefined result.
   return shift == 0 ? val : ((val >> shift) | (val << (32 - shift)));
 }
@@ -144,7 +144,7 @@ ui32 Rotate32(ui32 val, int shift) {
 #undef PERMUTE3
 #define PERMUTE3(a, b, c) do { std::swap(a, b); std::swap(a, c); } while (0)
 
-ui32 Mur(ui32 a, ui32 h) {
+llcpp::ui32 Mur(llcpp::ui32 a, llcpp::ui32 h) {
   // Helper from Murmur3 for combining two 32-bit values.
   a *= c1;
   a = Rotate32(a, 17);
@@ -154,38 +154,38 @@ ui32 Mur(ui32 a, ui32 h) {
   return h * 5 + 0xe6546b64;
 }
 
-ui32 Hash32Len13to24(ll_string_t s, len_t len) {
-  ui32 a = Fetch32(s - 4 + (len >> 1));
-  ui32 b = Fetch32(s + 4);
-  ui32 c = Fetch32(s + len - 8);
-  ui32 d = Fetch32(s + (len >> 1));
-  ui32 e = Fetch32(s);
-  ui32 f = Fetch32(s + len - 4);
-  ui32 h = static_cast<ui32>(len);
+llcpp::ui32 Hash32Len13to24(llcpp::ll_string_t s, const llcpp::len_t len) {
+  llcpp::ui32 a = Fetch32(s - 4 + (len >> 1));
+  llcpp::ui32 b = Fetch32(s + 4);
+  llcpp::ui32 c = Fetch32(s + len - 8);
+  llcpp::ui32 d = Fetch32(s + (len >> 1));
+  llcpp::ui32 e = Fetch32(s);
+  llcpp::ui32 f = Fetch32(s + len - 4);
+  llcpp::ui32 h = static_cast<llcpp::ui32>(len);
 
   return fmix(Mur(f, Mur(e, Mur(d, Mur(c, Mur(b, Mur(a, h)))))));
 }
 
-ui32 Hash32Len0to4(ll_string_t s, len_t len) {
-  ui32 b = 0;
-  ui32 c = 9;
-  for (len_t i = 0; i < len; ++i) {
+llcpp::ui32 Hash32Len0to4(llcpp::ll_string_t s, const llcpp::len_t len) {
+  llcpp::ui32 b = 0;
+  llcpp::ui32 c = 9;
+  for (llcpp::len_t i = 0; i < len; ++i) {
     signed char v = static_cast<signed char>(s[i]);
-    b = b * c1 + static_cast<ui32>(v);
+    b = b * c1 + static_cast<llcpp::ui32>(v);
     c ^= b;
   }
-  return fmix(Mur(b, Mur(static_cast<ui32>(len), c)));
+  return fmix(Mur(b, Mur(static_cast<llcpp::ui32>(len), c)));
 }
 
-ui32 Hash32Len5to12(ll_string_t s, len_t len) {
-  ui32 a = static_cast<ui32>(len), b = a * 5, c = 9, d = b;
+llcpp::ui32 Hash32Len5to12(llcpp::ll_string_t s, const llcpp::len_t len) {
+  llcpp::ui32 a = static_cast<llcpp::ui32>(len), b = a * 5, c = 9, d = b;
   a += Fetch32(s);
   b += Fetch32(s + len - 4);
   c += Fetch32(s + ((len >> 1) & 4));
   return fmix(Mur(c, Mur(b, Mur(a, d))));
 }
 
-ui32 CityHash32(ll_string_t s, len_t len) {
+llcpp::ui32 CityHash32(llcpp::ll_string_t s, const llcpp::len_t len) {
   if (len <= 24) {
     return len <= 12 ?
         (len <= 4 ? Hash32Len0to4(s, len) : Hash32Len5to12(s, len)) :
@@ -193,12 +193,12 @@ ui32 CityHash32(ll_string_t s, len_t len) {
   }
 
   // len > 24
-  ui32 h = static_cast<ui32>(len), g = c1 * h, f = g;
-  ui32 a0 = Rotate32(Fetch32(s + len - 4) * c1, 17) * c2;
-  ui32 a1 = Rotate32(Fetch32(s + len - 8) * c1, 17) * c2;
-  ui32 a2 = Rotate32(Fetch32(s + len - 16) * c1, 17) * c2;
-  ui32 a3 = Rotate32(Fetch32(s + len - 12) * c1, 17) * c2;
-  ui32 a4 = Rotate32(Fetch32(s + len - 20) * c1, 17) * c2;
+  llcpp::ui32 h = static_cast<llcpp::ui32>(len), g = c1 * h, f = g;
+  llcpp::ui32 a0 = Rotate32(Fetch32(s + len - 4) * c1, 17) * c2;
+  llcpp::ui32 a1 = Rotate32(Fetch32(s + len - 8) * c1, 17) * c2;
+  llcpp::ui32 a2 = Rotate32(Fetch32(s + len - 16) * c1, 17) * c2;
+  llcpp::ui32 a3 = Rotate32(Fetch32(s + len - 12) * c1, 17) * c2;
+  llcpp::ui32 a4 = Rotate32(Fetch32(s + len - 20) * c1, 17) * c2;
   h ^= a0;
   h = Rotate32(h, 19);
   h = h * 5 + 0xe6546b64;
@@ -214,13 +214,13 @@ ui32 CityHash32(ll_string_t s, len_t len) {
   f += a4;
   f = Rotate32(f, 19);
   f = f * 5 + 0xe6546b64;
-  len_t iters = (len - 1) / 20;
+  llcpp::len_t iters = (len - 1) / 20;
   do {
-    ui32 a0 = Rotate32(Fetch32(s) * c1, 17) * c2;
-    ui32 a1 = Fetch32(s + 4);
-    ui32 a2 = Rotate32(Fetch32(s + 8) * c1, 17) * c2;
-    ui32 a3 = Rotate32(Fetch32(s + 12) * c1, 17) * c2;
-    ui32 a4 = Fetch32(s + 16);
+    llcpp::ui32 a0 = Rotate32(Fetch32(s) * c1, 17) * c2;
+    llcpp::ui32 a1 = Fetch32(s + 4);
+    llcpp::ui32 a2 = Rotate32(Fetch32(s + 8) * c1, 17) * c2;
+    llcpp::ui32 a3 = Rotate32(Fetch32(s + 12) * c1, 17) * c2;
+    llcpp::ui32 a4 = Fetch32(s + 16);
     h ^= a0;
     h = Rotate32(h, 18);
     h = h * 5 + 0xe6546b64;
@@ -256,49 +256,49 @@ ui32 CityHash32(ll_string_t s, len_t len) {
 
 // Bitwise right rotate.  Normally this will compile to a single
 // instruction, especially if the shift is a manifest constant.
-ui64 Rotate(ui64 val, int shift) {
+llcpp::ui64 Rotate(const llcpp::ui64 val, const llcpp::i32 shift) {
   // Avoid shifting by 64: doing so yields an undefined result.
   return shift == 0 ? val : ((val >> shift) | (val << (64 - shift)));
 }
 
-ui64 ShiftMix(ui64 val) {
+llcpp::ui64 ShiftMix(const llcpp::ui64 val) {
   return val ^ (val >> 47);
 }
 
-ui64 HashLen16(ui64 u, ui64 v) {
-  return Hash128to64(ui128(u, v));
+llcpp::ui64 HashLen16(const llcpp::ui64 u, const llcpp::ui64 v) {
+  return Hash128to64(llcpp::ui128(u, v));
 }
 
-ui64 HashLen16(ui64 u, ui64 v, ui64 mul) {
+llcpp::ui64 HashLen16(const llcpp::ui64 u, const llcpp::ui64 v, const llcpp::ui64 mul) {
   // Murmur-inspired hashing.
-  ui64 a = (u ^ v) * mul;
+  llcpp::ui64 a = (u ^ v) * mul;
   a ^= (a >> 47);
-  ui64 b = (v ^ a) * mul;
+  llcpp::ui64 b = (v ^ a) * mul;
   b ^= (b >> 47);
   b *= mul;
   return b;
 }
 
-ui64 HashLen0to16(ll_string_t s, len_t len) {
+llcpp::ui64 HashLen0to16(llcpp::ll_string_t s, const llcpp::len_t len) {
   if (len >= 8) {
-    ui64 mul = k2 + len * 2;
-    ui64 a = Fetch64(s) + k2;
-    ui64 b = Fetch64(s + len - 8);
-    ui64 c = Rotate(b, 37) * mul + a;
-    ui64 d = (Rotate(a, 25) + b) * mul;
+    llcpp::ui64 mul = k2 + len * 2;
+    llcpp::ui64 a = Fetch64(s) + k2;
+    llcpp::ui64 b = Fetch64(s + len - 8);
+    llcpp::ui64 c = Rotate(b, 37) * mul + a;
+    llcpp::ui64 d = (Rotate(a, 25) + b) * mul;
     return HashLen16(c, d, mul);
   }
   if (len >= 4) {
-    ui64 mul = k2 + len * 2;
-    ui64 a = Fetch32(s);
+    llcpp::ui64 mul = k2 + len * 2;
+    llcpp::ui64 a = Fetch32(s);
     return HashLen16(len + (a << 3), Fetch32(s + len - 4), mul);
   }
   if (len > 0) {
-    ui8 a = static_cast<ui8>(s[0]);
-    ui8 b = static_cast<ui8>(s[len >> 1]);
-    ui8 c = static_cast<ui8>(s[len - 1]);
-    ui32 y = static_cast<ui32>(a) + (static_cast<ui32>(b) << 8);
-    ui32 z = static_cast<ui32>(len) + (static_cast<ui32>(c) << 2);
+    llcpp::ui8 a = static_cast<llcpp::ui8>(s[0]);
+    llcpp::ui8 b = static_cast<llcpp::ui8>(s[len >> 1]);
+    llcpp::ui8 c = static_cast<llcpp::ui8>(s[len - 1]);
+    llcpp::ui32 y = static_cast<llcpp::ui32>(a) + (static_cast<llcpp::ui32>(b) << 8);
+    llcpp::ui32 z = static_cast<llcpp::ui32>(len) + (static_cast<llcpp::ui32>(c) << 2);
     return ShiftMix(y * k2 ^ z * k0) * k2;
   }
   return k2;
@@ -306,23 +306,22 @@ ui64 HashLen0to16(ll_string_t s, len_t len) {
 
 // This probably works well for 16-byte strings as well, but it may be overkill
 // in that case.
-ui64 HashLen17to32(ll_string_t s, len_t len) {
-  ui64 mul = k2 + len * 2;
-  ui64 a = Fetch64(s) * k1;
-  ui64 b = Fetch64(s + 8);
-  ui64 c = Fetch64(s + len - 8) * mul;
-  ui64 d = Fetch64(s + len - 16) * k2;
+llcpp::ui64 HashLen17to32(llcpp::ll_string_t s, const llcpp::len_t len) {
+  llcpp::ui64 mul = k2 + len * 2;
+  llcpp::ui64 a = Fetch64(s) * k1;
+  llcpp::ui64 b = Fetch64(s + 8);
+  llcpp::ui64 c = Fetch64(s + len - 8) * mul;
+  llcpp::ui64 d = Fetch64(s + len - 16) * k2;
   return HashLen16(Rotate(a + b, 43) + Rotate(c, 30) + d,
                    a + Rotate(b + k2, 18) + c, mul);
 }
 
 // Return a 16-byte hash for 48 bytes.  Quick and dirty.
 // Callers do best to use "random-looking" values for a and b.
-std::pair<ui64, ui64> WeakHashLen32WithSeeds(
-    ui64 w, ui64 x, ui64 y, ui64 z, ui64 a, ui64 b) {
+llcpp::ui128 WeakHashLen32WithSeeds(const llcpp::ui64 w, const llcpp::ui64 x, const llcpp::ui64 y, const llcpp::ui64 z, llcpp::ui64 a, llcpp::ui64 b) {
   a += w;
   b = Rotate(b + a + z, 21);
-  ui64 c = a;
+  llcpp::ui64 c = a;
   a += x;
   a += y;
   b += Rotate(a, 44);
@@ -330,39 +329,36 @@ std::pair<ui64, ui64> WeakHashLen32WithSeeds(
 }
 
 // Return a 16-byte hash for s[0] ... s[31], a, and b.  Quick and dirty.
-std::pair<ui64, ui64> WeakHashLen32WithSeeds(
-    const char* s, ui64 a, ui64 b) {
-  return WeakHashLen32WithSeeds(Fetch64(s),
-                                Fetch64(s + 8),
-                                Fetch64(s + 16),
-                                Fetch64(s + 24),
-                                a,
-                                b);
+llcpp::ui128 WeakHashLen32WithSeeds(llcpp::ll_string_t s, const llcpp::ui64 a, const llcpp::ui64 b) {
+  return WeakHashLen32WithSeeds(
+      Fetch64(s), Fetch64(s + 8),
+      Fetch64(s + 16), Fetch64(s + 24), 
+      a, b);
 }
 
 // Return an 8-byte hash for 33 to 64 bytes.
-ui64 HashLen33to64(ll_string_t s, len_t len) {
-  ui64 mul = k2 + len * 2;
-  ui64 a = Fetch64(s) * k2;
-  ui64 b = Fetch64(s + 8);
-  ui64 c = Fetch64(s + len - 24);
-  ui64 d = Fetch64(s + len - 32);
-  ui64 e = Fetch64(s + 16) * k2;
-  ui64 f = Fetch64(s + 24) * 9;
-  ui64 g = Fetch64(s + len - 8);
-  ui64 h = Fetch64(s + len - 16) * mul;
-  ui64 u = Rotate(a + g, 43) + (Rotate(b, 30) + c) * 9;
-  ui64 v = ((a + g) ^ d) + f + 1;
-  ui64 w = bswap_64((u + v) * mul) + h;
-  ui64 x = Rotate(e + f, 42) + c;
-  ui64 y = (bswap_64((v + w) * mul) + g) * mul;
-  ui64 z = e + f + c;
+llcpp::ui64 HashLen33to64(llcpp::ll_string_t s, const llcpp::len_t len) {
+  llcpp::ui64 mul = k2 + len * 2;
+  llcpp::ui64 a = Fetch64(s) * k2;
+  llcpp::ui64 b = Fetch64(s + 8);
+  llcpp::ui64 c = Fetch64(s + len - 24);
+  llcpp::ui64 d = Fetch64(s + len - 32);
+  llcpp::ui64 e = Fetch64(s + 16) * k2;
+  llcpp::ui64 f = Fetch64(s + 24) * 9;
+  llcpp::ui64 g = Fetch64(s + len - 8);
+  llcpp::ui64 h = Fetch64(s + len - 16) * mul;
+  llcpp::ui64 u = Rotate(a + g, 43) + (Rotate(b, 30) + c) * 9;
+  llcpp::ui64 v = ((a + g) ^ d) + f + 1;
+  llcpp::ui64 w = bswap_64((u + v) * mul) + h;
+  llcpp::ui64 x = Rotate(e + f, 42) + c;
+  llcpp::ui64 y = (bswap_64((v + w) * mul) + g) * mul;
+  llcpp::ui64 z = e + f + c;
   a = bswap_64((x + z) * mul + y) + b;
   b = ShiftMix((z + a) * mul + d + h) * mul;
   return b + x;
 }
 
-ui64 CityHash64(ll_string_t s, len_t len) {
+llcpp::ui64 CityHash64(llcpp::ll_string_t s, llcpp::len_t len) {
   if (len <= 32) {
     if (len <= 16) {
       return HashLen0to16(s, len);
@@ -375,15 +371,15 @@ ui64 CityHash64(ll_string_t s, len_t len) {
 
   // For strings over 64 bytes we hash the end first, and then as we
   // loop we keep 56 bytes of state: v, w, x, y, and z.
-  ui64 x = Fetch64(s + len - 40);
-  ui64 y = Fetch64(s + len - 16) + Fetch64(s + len - 56);
-  ui64 z = HashLen16(Fetch64(s + len - 48) + len, Fetch64(s + len - 24));
-  std::pair<ui64, ui64> v = WeakHashLen32WithSeeds(s + len - 64, len, z);
-  std::pair<ui64, ui64> w = WeakHashLen32WithSeeds(s + len - 32, y + k1, x);
+  llcpp::ui64 x = Fetch64(s + len - 40);
+  llcpp::ui64 y = Fetch64(s + len - 16) + Fetch64(s + len - 56);
+  llcpp::ui64 z = HashLen16(Fetch64(s + len - 48) + len, Fetch64(s + len - 24));
+  llcpp::ui128 v = WeakHashLen32WithSeeds(s + len - 64, len, z);
+  llcpp::ui128 w = WeakHashLen32WithSeeds(s + len - 32, y + k1, x);
   x = x * k1 + Fetch64(s);
 
   // Decrease len to the nearest multiple of 64, and operate on 64-byte chunks.
-  len = (len - 1) & ~static_cast<len_t>(63);
+  len = (len - 1) & ~static_cast<llcpp::len_t>(63);
   do {
     x = Rotate(x + y + v.first + Fetch64(s + 8), 37) * k1;
     y = Rotate(y + v.second + Fetch64(s + 48), 42) * k1;
@@ -400,22 +396,22 @@ ui64 CityHash64(ll_string_t s, len_t len) {
                    HashLen16(v.second, w.second) + x);
 }
 
-ui64 CityHash64WithSeed(ll_string_t s, len_t len, ui64 seed) {
+llcpp::ui64 CityHash64WithSeed(llcpp::ll_string_t s, const llcpp::len_t len, const llcpp::ui64 seed) {
   return CityHash64WithSeeds(s, len, k2, seed);
 }
 
-ui64 CityHash64WithSeeds(ll_string_t s, len_t len,
-                           ui64 seed0, ui64 seed1) {
+llcpp::ui64 CityHash64WithSeeds(llcpp::ll_string_t s, const llcpp::len_t len,
+                           const llcpp::ui64 seed0, const llcpp::ui64 seed1) {
   return HashLen16(CityHash64(s, len) - seed0, seed1);
 }
 
 // A subroutine for CityHash128().  Returns a decent 128-bit hash for strings
 // of any length representable in signed long.  Based on City and Murmur.
-ui128 CityMurmur(ll_string_t s, len_t len, ui128 seed) {
-  ui64 a = Uint128Low64(seed);
-  ui64 b = Uint128High64(seed);
-  ui64 c = 0;
-  ui64 d = 0;
+llcpp::ui128 CityMurmur(llcpp::ll_string_t s, llcpp::len_t len, const llcpp::ui128 seed) {
+  llcpp::ui64 a = Uint128Low64(seed);
+  llcpp::ui64 b = Uint128High64(seed);
+  llcpp::ui64 c = 0;
+  llcpp::ui64 d = 0;
   if (len <= 16) {
     a = ShiftMix(a * k1) * k1;
     c = b * k1 + HashLen0to16(s, len);
@@ -438,20 +434,20 @@ ui128 CityMurmur(ll_string_t s, len_t len, ui128 seed) {
   }
   a = HashLen16(a, c);
   b = HashLen16(d, b);
-  return ui128(a ^ b, HashLen16(b, a));
+  return llcpp::ui128(a ^ b, HashLen16(b, a));
 }
 
-ui128 CityHash128WithSeed(ll_string_t s, len_t len, ui128 seed) {
+llcpp::ui128 CityHash128WithSeed(llcpp::ll_string_t s, llcpp::len_t len, const llcpp::ui128& seed) {
   if (len < 128) {
     return CityMurmur(s, len, seed);
   }
 
   // We expect len >= 128 to be the common case.  Keep 56 bytes of state:
   // v, w, x, y, and z.
-  std::pair<ui64, ui64> v, w;
-  ui64 x = Uint128Low64(seed);
-  ui64 y = Uint128High64(seed);
-  ui64 z = len * k1;
+  llcpp::ui128 v, w;
+  llcpp::ui64 x = Uint128Low64(seed);
+  llcpp::ui64 y = Uint128High64(seed);
+  llcpp::ui64 z = len * k1;
   v.first = Rotate(y ^ k1, 49) * k1 + Fetch64(s);
   v.second = Rotate(v.first, 42) * k1 + Fetch64(s + 8);
   w.first = Rotate(y + z, 35) * k1 + x;
@@ -485,7 +481,7 @@ ui128 CityHash128WithSeed(ll_string_t s, len_t len, ui128 seed) {
   w.first *= 9;
   v.first *= k0;
   // If 0 < len < 128, hash up to 4 chunks of 32 bytes each from the end of s.
-  for (len_t tail_done = 0; tail_done < len; ) {
+  for (llcpp::len_t tail_done = 0; tail_done < len; ) {
     tail_done += 32;
     y = Rotate(x + y, 42) * k0 + v.second;
     w.first += Fetch64(s + len - tail_done + 16);
@@ -500,38 +496,46 @@ ui128 CityHash128WithSeed(ll_string_t s, len_t len, ui128 seed) {
   // different 56-byte-to-8-byte hashes to get a 16-byte final result.
   x = HashLen16(x, v.first);
   y = HashLen16(y + z, w.first);
-  return ui128(HashLen16(x + v.second, w.second) + y,
+  return llcpp::ui128(HashLen16(x + v.second, w.second) + y,
                  HashLen16(x + w.second, y + v.second));
 }
 
-ui128 CityHash128(ll_string_t s, len_t len) {
+llcpp::ui128 CityHash128(llcpp::ll_string_t s, llcpp::len_t len) {
   return len >= 16 ?
-      CityHash128WithSeed(s + 16, len - 16,
-                          ui128(Fetch64(s), Fetch64(s + 8) + k0)) :
-      CityHash128WithSeed(s, len, ui128(k0, k1));
+      CityHash128WithSeed(s + 16, len - 16, llcpp::ui128(Fetch64(s), Fetch64(s + 8) + k0)) :
+      CityHash128WithSeed(s, len, llcpp::ui128(k0, k1));
 }
+
+void CityHash128(llcpp::ll_string_t s, llcpp::len_t len, llcpp::ui128& result) {
+    result = CityHash128(s, len);
+}
+
+void CityHash128WithSeed(llcpp::ll_string_t s, llcpp::len_t len, const llcpp::ui128& seed, llcpp::ui128& result) {
+    result = CityHash128WithSeed(s, len, seed);
+}
+
 
 #ifdef __SSE4_2__
 #include <citycrc.h>
 #include <nmmintrin.h>
 
 // Requires len >= 240.
-void CityHashCrc256Long(ll_string_t s, len_t len,
-                               ui32 seed, ui64 *result) {
-  ui64 a = Fetch64(s + 56) + k0;
-  ui64 b = Fetch64(s + 96) + k0;
-  ui64 c = result[0] = HashLen16(b, len);
-  ui64 d = result[1] = Fetch64(s + 120) * k0 + len;
-  ui64 e = Fetch64(s + 184) + seed;
-  ui64 f = 0;
-  ui64 g = 0;
-  ui64 h = c + d;
-  ui64 x = seed;
-  ui64 y = 0;
-  ui64 z = 0;
+void CityHashCrc256Long(llcpp::ll_string_t s, llcpp::len_t len,
+                               llcpp::ui32 seed, llcpp::ui64 *result) {
+  llcpp::ui64 a = Fetch64(s + 56) + k0;
+  llcpp::ui64 b = Fetch64(s + 96) + k0;
+  llcpp::ui64 c = result[0] = HashLen16(b, len);
+  llcpp::ui64 d = result[1] = Fetch64(s + 120) * k0 + len;
+  llcpp::ui64 e = Fetch64(s + 184) + seed;
+  llcpp::ui64 f = 0;
+  llcpp::ui64 g = 0;
+  llcpp::ui64 h = c + d;
+  llcpp::ui64 x = seed;
+  llcpp::ui64 y = 0;
+  llcpp::ui64 z = 0;
 
   // 240 bytes of input per iter.
-  len_t iters = len / 240;
+  llcpp::len_t iters = len / 240;
   len -= iters * 240;
   do {
 #undef CHUNK
@@ -604,14 +608,14 @@ void CityHashCrc256Long(ll_string_t s, len_t len,
 }
 
 // Requires len < 240.
-void CityHashCrc256Short(ll_string_t s, len_t len, ui64 *result) {
+void CityHashCrc256Short(llcpp::ll_string_t s, llcpp::len_t len, llcpp::ui64 *result) {
   char buf[240];
   std::memcpy(buf, s, len);
   std::memset(buf + len, 0, 240 - len);
-  CityHashCrc256Long(buf, 240, ~static_cast<ui32>(len), result);
+  CityHashCrc256Long(buf, 240, ~static_cast<llcpp::ui32>(len), result);
 }
 
-void CityHashCrc256(ll_string_t s, len_t len, ui64 *result) {
+void CityHashCrc256(llcpp::ll_string_t s, llcpp::len_t len, llcpp::ui64 *result) {
   if (LIKELY(len >= 240)) {
     CityHashCrc256Long(s, len, 0, result);
   } else {
@@ -619,26 +623,26 @@ void CityHashCrc256(ll_string_t s, len_t len, ui64 *result) {
   }
 }
 
-ui128 CityHashCrc128WithSeed(ll_string_t s, len_t len, ui128 seed) {
+llcpp::ui128 CityHashCrc128WithSeed(llcpp::ll_string_t s, llcpp::len_t len, llcpp::ui128 seed) {
   if (len <= 900) {
     return CityHash128WithSeed(s, len, seed);
   } else {
-    ui64 result[4];
+    llcpp::ui64 result[4];
     CityHashCrc256(s, len, result);
-    ui64 u = Uint128High64(seed) + result[0];
-    ui64 v = Uint128Low64(seed) + result[1];
-    return ui128(HashLen16(u, v + result[2]),
+    llcpp::ui64 u = Uint128High64(seed) + result[0];
+    llcpp::ui64 v = Uint128Low64(seed) + result[1];
+    return llcpp::ui128(HashLen16(u, v + result[2]),
                    HashLen16(Rotate(v, 32), u * k0 + result[3]));
   }
 }
 
-ui128 CityHashCrc128(ll_string_t s, len_t len) {
+llcpp::ui128 CityHashCrc128(llcpp::ll_string_t s, llcpp::len_t len) {
   if (len <= 900) {
     return CityHash128(s, len);
   } else {
-    ui64 result[4];
+    llcpp::ui64 result[4];
     CityHashCrc256(s, len, result);
-    return ui128(result[2], result[3]);
+    return llcpp::ui128(result[2], result[3]);
   }
 }
 
