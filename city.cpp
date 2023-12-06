@@ -93,7 +93,7 @@ ui32 UNALIGNED_LOAD32(ll_string_t p) {
 
 #endif
 
-#ifdef WORDS_BIGENDIAN
+#if defined(WORDS_BIGENDIAN)
 #define ui32_in_expected_order(x) (bswap_32(x))
 #define ui64_in_expected_order(x) (bswap_64(x))
 #else
@@ -102,7 +102,7 @@ ui32 UNALIGNED_LOAD32(ll_string_t p) {
 #endif
 
 #if !defined(LIKELY)
-#if HAVE_BUILTIN_EXPECT
+#if defined(HAVE_BUILTIN_EXPECT) && HAVE_BUILTIN_EXPECT
 #define LIKELY(x) (__builtin_expect(!!(x), 1))
 #else
 #define LIKELY(x) (x)
@@ -195,24 +195,24 @@ ui32 CityHash32(ll_string_t s, const len_t len) {
 
     // len > 24
     ui32 h = static_cast<ui32>(len), g = c1 * h, f = g;
-    ui32 a0 = Rotate32(Fetch32(s + len - 4) * c1, 17) * c2;
-    ui32 a1 = Rotate32(Fetch32(s + len - 8) * c1, 17) * c2;
-    ui32 a2 = Rotate32(Fetch32(s + len - 16) * c1, 17) * c2;
-    ui32 a3 = Rotate32(Fetch32(s + len - 12) * c1, 17) * c2;
-    ui32 a4 = Rotate32(Fetch32(s + len - 20) * c1, 17) * c2;
-    h ^= a0;
+    ui32 b0 = Rotate32(Fetch32(s + len - 4) * c1, 17) * c2;
+    ui32 b1 = Rotate32(Fetch32(s + len - 8) * c1, 17) * c2;
+    ui32 b2 = Rotate32(Fetch32(s + len - 16) * c1, 17) * c2;
+    ui32 b3 = Rotate32(Fetch32(s + len - 12) * c1, 17) * c2;
+    ui32 b4 = Rotate32(Fetch32(s + len - 20) * c1, 17) * c2;
+    h ^= b0;
     h = Rotate32(h, 19);
     h = h * 5 + 0xe6546b64;
-    h ^= a2;
+    h ^= b2;
     h = Rotate32(h, 19);
     h = h * 5 + 0xe6546b64;
-    g ^= a1;
+    g ^= b1;
     g = Rotate32(g, 19);
     g = g * 5 + 0xe6546b64;
-    g ^= a3;
+    g ^= b3;
     g = Rotate32(g, 19);
     g = g * 5 + 0xe6546b64;
-    f += a4;
+    f += b4;
     f = Rotate32(f, 19);
     f = f * 5 + 0xe6546b64;
     len_t iters = (len - 1) / 20;
