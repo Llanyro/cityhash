@@ -59,14 +59,23 @@
 // of a+b is easily derived from the hashes of a and b.  This property
 // doesn't hold for any hash functions in this file.
 
+/*
+ * city.hpp
+ *
+ *  Created on: Jan 17, 2023
+ *	  Author: Geoff Pike and Jyrki Alakuijala
+ *	  Edited: Francisco Julio Ruiz Fernandez
+ *    Edited: llanyro
+ * 
+ *	Edited to being used in llanylib
+ */
+
 #ifndef LLCPP_CITY_HASH_HPP_
 #define LLCPP_CITY_HASH_HPP_
 
 #include <llanytypeslib.hpp>
 
 namespace city {
-
-extern "C" {  // Extern C
 
 inline ui64 Uint128Low64(const ui128& x) { return x.first; }
 inline ui64 Uint128High64(const ui128& x) { return x.second; }
@@ -103,8 +112,6 @@ LL_SHARED_LIB inline ui64 Hash128to64(const ui128& x) {
   b *= kMul;
   return b;
 }
-
-} /* Extern C */
 
 // Hash function for a byte array.
 LL_SHARED_LIB ui128 CityHash128(ll_string_t s, len_t len);
