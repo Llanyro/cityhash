@@ -35,11 +35,9 @@
 
 #if defined(WINDOWS_SYSTEM)
 #pragma warning(push)
-
-#if defined(__LL_UNSECURE_FUNCTIONS__)
-#pragma warning(disable:5045) // Security mitigation
+#if defined(__LL_SPECTRE_FUNCTIONS__)
+#pragma warning(disable:5045) // Security Spectre mitigation
 #endif // __LL_UNSECURE_FUNCTIONS__
-
 #endif // WINDOWS_SYSTEM
 
 namespace city {
@@ -372,20 +370,12 @@ ui64 CityHash64(ll_string_t s, len_t len) {
     LL_ASSERT(s, "[s] cannot be nullptr. CityHash64(ll_string_t s, len_t len)");
     if (len <= 32) {
         if (len <= 16)
-#if defined(__LL_UNSECURE_FUNCTIONS__)
             return HashLen0to16(s, len);
-#else
-            ; static_assert(false, "Error: unsecure function here!");
-#endif // __LL_UNSECURE_FUNCTIONS__
         else
             return HashLen17to32(s, len);
     }
     else if (len <= 64)
-#if defined(__LL_UNSECURE_FUNCTIONS__)
         return HashLen33to64(s, len);
-#else
-        ; static_assert(false, "Error: unsecure function here!");
-#endif // __LL_UNSECURE_FUNCTIONS__
 
     // For strings over 64 bytes we hash the end first, and then as we
     // loop we keep 56 bytes of state: v, w, x, y, and z.
@@ -434,11 +424,7 @@ ui128 CityMurmur(ll_string_t s, len_t len, const ui128 seed) {
     if (len <= 16) {
         a = ShiftMix(a * k1) * k1;
         c = b * k1 + HashLen0to16(s, len);
-#if defined(__LL_UNSECURE_FUNCTIONS__)
         d = ShiftMix(a + (len >= 8 ? Fetch64(s) : c));
-#else
-        ; static_assert(false, "Error: unsecure function here!");
-#endif // __LL_UNSECURE_FUNCTIONS__
     }
     else {
         c = HashLen16(Fetch64(s + len - 8) + k1, a);
@@ -463,11 +449,7 @@ ui128 CityMurmur(ll_string_t s, len_t len, const ui128 seed) {
 
 ui128 CityHash128WithSeed(ll_string_t s, len_t len, const ui128& seed) {
     if (len < 128)
-#if defined(__LL_UNSECURE_FUNCTIONS__)
         return CityMurmur(s, len, seed);
-#else
-        ; static_assert(false, "Error: unsecure function here!");
-#endif // __LL_UNSECURE_FUNCTIONS__
 
     // We expect len >= 128 to be the common case.  Keep 56 bytes of state:
     // v, w, x, y, and z.
@@ -515,11 +497,7 @@ ui128 CityHash128WithSeed(ll_string_t s, len_t len, const ui128& seed) {
         x = x * k0 + w.first;
         z += w.second + Fetch64(s + len - tail_done);
         w.second += v.first;
-#if defined(__LL_UNSECURE_FUNCTIONS__)
         v = WeakHashLen32WithSeeds(s + len - tail_done, v.first + z, v.second);
-#else
-        ; static_assert(false, "Error: unsecure function here!");
-#endif // __LL_UNSECURE_FUNCTIONS__
         v.first *= k0;
     }
     // At this point our 56 bytes of state should contain more than
@@ -533,13 +511,9 @@ ui128 CityHash128WithSeed(ll_string_t s, len_t len, const ui128& seed) {
 
 ui128 CityHash128(ll_string_t s, len_t len) {
     LL_ASSERT(s, "[s] cannot be nullptr. CityHash128(ll_string_t s, len_t len)");
-#if defined(__LL_UNSECURE_FUNCTIONS__)
     return len >= 16 ?
         CityHash128WithSeed(s + 16, len - 16, ui128(Fetch64(s), Fetch64(s + 8) + k0)) :
         CityHash128WithSeed(s, len, ui128(k0, k1));
-#else
-    ; static_assert(false, "Error: unsecure function here!");
-#endif // __LL_UNSECURE_FUNCTIONS__
 }
 
 void CityHash128(ll_string_t s, len_t len, ui128& result) {
