@@ -30,14 +30,24 @@
 //#include "config.h"
 #include "city.hpp"
 
+#if defined(WINDOWS_SYSTEM)
+    #pragma warning(push)
+    #pragma warning(disable:4365) // ignore conversion from long to ui32 (signed/unsigned mismatch)
+#endif // WINDOWS_SYSTEM
+
 #include <algorithm>
+
+#if defined(WINDOWS_SYSTEM)
+#pragma warning(pop)
+#endif // WINDOWS_SYSTEM
+
 #include <cstring>  // for std::memcpy and std::memset
 
 #if defined(WINDOWS_SYSTEM)
-#pragma warning(push)
-#if defined(__LL_SPECTRE_FUNCTIONS__)
-#pragma warning(disable:5045) // Security Spectre mitigation
-#endif // __LL_UNSECURE_FUNCTIONS__
+    #pragma warning(push)
+    #if defined(__LL_SPECTRE_FUNCTIONS__)
+        #pragma warning(disable:5045) // Security Spectre mitigation
+    #endif // __LL_UNSECURE_FUNCTIONS__
 #endif // WINDOWS_SYSTEM
 
 namespace city {
@@ -274,7 +284,7 @@ ui64 ShiftMix(const ui64 val) {
 }
 
 ui64 HashLen16(const ui64 u, const ui64 v) {
-    return Hash128to64(ui128(u, v));
+    return Hash128to64(hash128(u, v));
 }
 
 ui64 HashLen16(const ui64 u, const ui64 v, const ui64 mul) {
@@ -326,7 +336,7 @@ ui64 HashLen17to32(ll_string_t s, const len_t len) {
 
 // Return a 16-byte hash for 48 bytes.  Quick and dirty.
 // Callers do best to use "random-looking" values for a and b.
-ui128 WeakHashLen32WithSeeds(const ui64 w, const ui64 x, const ui64 y, const ui64 z, ui64 a, ui64 b) {
+hash128 WeakHashLen32WithSeeds(const ui64 w, const ui64 x, const ui64 y, const ui64 z, ui64 a, ui64 b) {
     a += w;
     b = Rotate(b + a + z, 21);
     ui64 c = a;
@@ -337,7 +347,7 @@ ui128 WeakHashLen32WithSeeds(const ui64 w, const ui64 x, const ui64 y, const ui6
 }
 
 // Return a 16-byte hash for s[0] ... s[31], a, and b.  Quick and dirty.
-ui128 WeakHashLen32WithSeeds(ll_string_t s, const ui64 a, const ui64 b) {
+hash128 WeakHashLen32WithSeeds(ll_string_t s, const ui64 a, const ui64 b) {
     return WeakHashLen32WithSeeds(
         Fetch64(s), Fetch64(s + 8),
         Fetch64(s + 16), Fetch64(s + 24),
@@ -382,8 +392,8 @@ ui64 CityHash64(ll_string_t s, len_t len) {
     ui64 x = Fetch64(s + len - 40);
     ui64 y = Fetch64(s + len - 16) + Fetch64(s + len - 56);
     ui64 z = HashLen16(Fetch64(s + len - 48) + len, Fetch64(s + len - 24));
-    ui128 v = WeakHashLen32WithSeeds(s + len - 64, len, z);
-    ui128 w = WeakHashLen32WithSeeds(s + len - 32, y + k1, x);
+    hash128 v = WeakHashLen32WithSeeds(s + len - 64, len, z);
+    hash128 w = WeakHashLen32WithSeeds(s + len - 32, y + k1, x);
     x = x * k1 + Fetch64(s);
 
     // Decrease len to the nearest multiple of 64, and operate on 64-byte chunks.
@@ -416,7 +426,7 @@ ui64 CityHash64WithSeeds(ll_string_t s, const len_t len, const ui64 seed0, const
 
 // A subroutine for CityHash128().  Returns a decent 128-bit hash for strings
 // of any length representable in signed long.  Based on City and Murmur.
-ui128 CityMurmur(ll_string_t s, len_t len, const ui128 seed) {
+hash128 CityMurmur(ll_string_t s, len_t len, const hash128 seed) {
     ui64 a = Uint128Low64(seed);
     ui64 b = Uint128High64(seed);
     ui64 c = 0;
@@ -444,16 +454,16 @@ ui128 CityMurmur(ll_string_t s, len_t len, const ui128 seed) {
     }
     a = HashLen16(a, c);
     b = HashLen16(d, b);
-    return ui128(a ^ b, HashLen16(b, a));
+    return hash128(a ^ b, HashLen16(b, a));
 }
 
-ui128 CityHash128WithSeed(ll_string_t s, len_t len, const ui128& seed) {
+hash128 CityHash128WithSeed(ll_string_t s, len_t len, const hash128& seed) {
     if (len < 128)
         return CityMurmur(s, len, seed);
 
     // We expect len >= 128 to be the common case.  Keep 56 bytes of state:
     // v, w, x, y, and z.
-    ui128 v, w;
+    hash128 v, w;
     ui64 x = Uint128Low64(seed);
     ui64 y = Uint128High64(seed);
     ui64 z = len * k1;
@@ -505,24 +515,24 @@ ui128 CityHash128WithSeed(ll_string_t s, len_t len, const ui128& seed) {
     // different 56-byte-to-8-byte hashes to get a 16-byte final result.
     x = HashLen16(x, v.first);
     y = HashLen16(y + z, w.first);
-    return ui128(HashLen16(x + v.second, w.second) + y,
+    return hash128(HashLen16(x + v.second, w.second) + y,
         HashLen16(x + w.second, y + v.second));
 }
 
-ui128 CityHash128(ll_string_t s, len_t len) {
+hash128 CityHash128(ll_string_t s, len_t len) {
     LL_ASSERT(s, "[s] cannot be nullptr. CityHash128(ll_string_t s, len_t len)");
     return len >= 16 ?
-        CityHash128WithSeed(s + 16, len - 16, ui128(Fetch64(s), Fetch64(s + 8) + k0)) :
-        CityHash128WithSeed(s, len, ui128(k0, k1));
+        CityHash128WithSeed(s + 16, len - 16, hash128(Fetch64(s), Fetch64(s + 8) + k0)) :
+        CityHash128WithSeed(s, len, hash128(k0, k1));
 }
 
-void CityHash128(ll_string_t s, len_t len, ui128& result) {
-    LL_ASSERT(s, "[s] cannot be nullptr. CityHash128(ll_string_t s, len_t len, ui128& result)");
+void CityHash128(ll_string_t s, len_t len, hash128& result) {
+    LL_ASSERT(s, "[s] cannot be nullptr. CityHash128(ll_string_t s, len_t len, hash128& result)");
     result = CityHash128(s, len);
 }
 
-void CityHash128WithSeed(ll_string_t s, len_t len, const ui128& seed, ui128& result) {
-    LL_ASSERT(s, "[s] cannot be nullptr. CityHash128WithSeed(ll_string_t s, len_t len, const ui128& seed, ui128& result)");
+void CityHash128WithSeed(ll_string_t s, len_t len, const hash128& seed, hash128& result) {
+    LL_ASSERT(s, "[s] cannot be nullptr. CityHash128WithSeed(ll_string_t s, len_t len, const hash128& seed, hash128& result)");
     result = CityHash128WithSeed(s, len, seed);
 }
 
@@ -636,7 +646,7 @@ void CityHashCrc256(ll_string_t s, len_t len, ui64* result) {
     }
 }
 
-ui128 CityHashCrc128WithSeed(ll_string_t s, len_t len, ui128 seed) {
+hash128 CityHashCrc128WithSeed(ll_string_t s, len_t len, hash128 seed) {
     if (len <= 900) {
         return CityHash128WithSeed(s, len, seed);
     }
@@ -645,19 +655,19 @@ ui128 CityHashCrc128WithSeed(ll_string_t s, len_t len, ui128 seed) {
         CityHashCrc256(s, len, result);
         ui64 u = Uint128High64(seed) + result[0];
         ui64 v = Uint128Low64(seed) + result[1];
-        return ui128(HashLen16(u, v + result[2]),
+        return hash128(HashLen16(u, v + result[2]),
             HashLen16(Rotate(v, 32), u * k0 + result[3]));
     }
 }
 
-ui128 CityHashCrc128(ll_string_t s, len_t len) {
+hash128 CityHashCrc128(ll_string_t s, len_t len) {
     if (len <= 900) {
         return CityHash128(s, len);
     }
     else {
         ui64 result[4];
         CityHashCrc256(s, len, result);
-        return ui128(result[2], result[3]);
+        return hash128(result[2], result[3]);
     }
 }
 
@@ -666,5 +676,5 @@ ui128 CityHashCrc128(ll_string_t s, len_t len) {
 } /* namespace city */
 
 #if defined(WINDOWS_SYSTEM)
-#pragma warning(pop)
+    #pragma warning(pop)
 #endif // WINDOWS_SYSTEM
