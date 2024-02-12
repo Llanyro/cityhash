@@ -67,7 +67,7 @@
  *	  Edited: Francisco Julio Ruiz Fernandez
  *    Edited: llanyro
  * 
- *	Edited to being used in llanylib
+ *	Adjusted for llanylib compatibility
  */
 
 #ifndef LLCPP_CITY_HASH_HPP_
