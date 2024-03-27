@@ -60,12 +60,11 @@
 // doesn't hold for any hash functions in this file.
 
 /*
- * city.hpp
+ *	city.hpp
  *
- *  Created on: Jan 17, 2023
- *	  Author: Geoff Pike and Jyrki Alakuijala
- *	  Edited: Francisco Julio Ruiz Fernandez
- *    Edited: llanyro
+ *	Author: Geoff Pike and Jyrki Alakuijala
+ *	Edited: Francisco Julio Ruiz Fernandez
+ *	Edited: llanyro
  * 
  *	Adjusted for llanylib compatibility
  */
