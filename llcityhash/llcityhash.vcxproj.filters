@@ -15,12 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\cityhash\city.cpp">
+    <ClCompile Include="city.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\cityhash\city.hpp">
+    <ClInclude Include="city.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

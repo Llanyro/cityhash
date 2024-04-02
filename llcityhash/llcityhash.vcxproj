@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\cityhash\city.cpp" />
+    <ClCompile Include="city.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\cityhash\city.hpp" />
+    <ClInclude Include="city.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
