@@ -59,15 +59,15 @@
 // of a+b is easily derived from the hashes of a and b.  This property
 // doesn't hold for any hash functions in this file.
 
-/*
- *	city.hpp
- *
- *	Author: Geoff Pike and Jyrki Alakuijala
- *	Edited: Francisco Julio Ruiz Fernandez
- *	Edited: llanyro
- * 
- *	Adjusted for llanylib compatibility
- */
+//////////////////////////////////////////////
+//	city.hpp								//
+//											//
+//	Author: Geoff Pike and Jyrki Alakuijala	//
+//	Edited: Francisco Julio Ruiz Fernandez	//
+//	Edited: llanyro							//
+//											//
+//	Version: 4.2							//
+//////////////////////////////////////////////
 
 #ifndef LLCPP_CITY_HASH_HPP_
 #define LLCPP_CITY_HASH_HPP_

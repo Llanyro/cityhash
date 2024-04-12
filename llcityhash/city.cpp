@@ -27,6 +27,16 @@
 // possible hash functions, by using SIMD instructions, or by
 // compromising on hash quality.
 
+//////////////////////////////////////////////
+//	city.cpp								//
+//											//
+//	Author: Geoff Pike and Jyrki Alakuijala	//
+//	Edited: Francisco Julio Ruiz Fernandez	//
+//	Edited: llanyro							//
+//											//
+//	Version: 4.2							//
+//////////////////////////////////////////////
+
 //#include "config.h"
 #include "city.hpp"
 
