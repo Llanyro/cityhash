@@ -70,8 +70,7 @@
 #ifndef LLCPP_CITY_HASH_HPP_
 #define LLCPP_CITY_HASH_HPP_
 
-#include <llanylib/os.hpp>
-#include <llanylib/types.hpp>
+#include <llanylibsimple.hpp>
 
 #include <utility>
 

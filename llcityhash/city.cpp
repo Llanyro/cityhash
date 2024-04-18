@@ -41,12 +41,10 @@
 #if defined(WINDOWS_SYSTEM)
     #pragma warning(push)
     #pragma warning(disable:4365) // ignore conversion from long to ui32 (signed/unsigned mismatch)
-#endif // WINDOWS_SYSTEM
-
-#include <algorithm>
-
-#if defined(WINDOWS_SYSTEM)
-#pragma warning(pop)
+    #include <algorithm>
+    #pragma warning(pop)
+#else
+    #include <algorithm>
 #endif // WINDOWS_SYSTEM
 
 #include <cstring>  // for std::memcpy and std::memset
