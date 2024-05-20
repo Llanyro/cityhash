@@ -82,15 +82,15 @@ __LL_NODISCARD__ __LL_INLINE__ ui64 Uint128Low64(const hash128& x) { return x.fi
 __LL_NODISCARD__ __LL_INLINE__ ui64 Uint128High64(const hash128& x) { return x.second; }
 
 // Hash function for a byte array.
-LL_SHARED_LIB ui64 CityHash64(ll_string_t buf, len_t len);
+LL_SHARED_LIB __LL_NODISCARD__ ui64 CityHash64(ll_string_t buf, len_t len);
 
 // Hash function for a byte array.  For convenience, a 64-bit seed is also
 // hashed into the result.
-LL_SHARED_LIB ui64 CityHash64WithSeed(ll_string_t buf, const len_t len, const ui64 seed);
+LL_SHARED_LIB __LL_NODISCARD__ ui64 CityHash64WithSeed(ll_string_t buf, const len_t len, const ui64 seed);
 
 // Hash function for a byte array.  For convenience, two seeds are also
 // hashed into the result.
-LL_SHARED_LIB ui64 CityHash64WithSeeds(ll_string_t buf, const len_t len, const ui64 seed0, const ui64 seed1);
+LL_SHARED_LIB __LL_NODISCARD__ ui64 CityHash64WithSeeds(ll_string_t buf, const len_t len, const ui64 seed0, const ui64 seed1);
 
 template<class T, class tmp = llcpp::traits::template_types<T>, class W = typename tmp::cinput>
 __LL_NODISCARD__ __LL_INLINE__ ui64 CityHash64(W data) __LL_EXCEPT__ {
@@ -108,11 +108,11 @@ LL_SHARED_LIB void CityHash128(ll_string_t s, len_t len, hash128& result);
 LL_SHARED_LIB void CityHash128WithSeed(ll_string_t s, len_t len, const hash128& seed, hash128& result);
 
 // Hash function for a byte array.  Most useful in 32-bit binaries.
-LL_SHARED_LIB ui32 CityHash32(ll_string_t buf, len_t len);
+LL_SHARED_LIB __LL_NODISCARD__ ui32 CityHash32(ll_string_t buf, len_t len);
 
 // Hash 128 input bits down to 64 bits of output.
 // This is intended to be a reasonably good hash function.
-LL_SHARED_LIB __LL_INLINE__ ui64 Hash128to64(const hash128& x) {
+LL_SHARED_LIB __LL_NODISCARD__ __LL_INLINE__ ui64 Hash128to64(const hash128& x) {
   // Murmur-inspired hashing.
   const ui64 kMul = 0x9ddfea08eb382d69ULL;
   ui64 a = (Uint128Low64(x) ^ Uint128High64(x)) * kMul;
@@ -124,11 +124,11 @@ LL_SHARED_LIB __LL_INLINE__ ui64 Hash128to64(const hash128& x) {
 }
 
 // Hash function for a byte array.
-LL_SHARED_LIB hash128 CityHash128(ll_string_t s, len_t len);
+LL_SHARED_LIB __LL_NODISCARD__ hash128 CityHash128(ll_string_t s, len_t len);
 
 // Hash function for a byte array.  For convenience, a 128-bit seed is also
 // hashed into the result.
-LL_SHARED_LIB hash128 CityHash128WithSeed(ll_string_t s, len_t len, const hash128& seed);
+LL_SHARED_LIB __LL_NODISCARD__ hash128 CityHash128WithSeed(ll_string_t s, len_t len, const hash128& seed);
 
 } /* namespace city */
 
