@@ -382,7 +382,7 @@ ui64 HashLen33to64(ll_string_t s, const len_t len) {
     return b + x;
 }
 
-llcpp::Hash CityHash64(ll_string_t s, len_t len) {
+Hash CityHash64(ll_string_t s, len_t len) {
     LL_ASSERT(s, "[s] cannot be nullptr. CityHash64(ll_string_t s, len_t len)");
     if (len <= 32) {
         if (len <= 16)
@@ -420,12 +420,12 @@ llcpp::Hash CityHash64(ll_string_t s, len_t len) {
         HashLen16(v.second, w.second) + x);
 }
 
-llcpp::Hash CityHash64WithSeed(ll_string_t s, const len_t len, const ui64 seed) {
+Hash CityHash64WithSeed(ll_string_t s, const len_t len, const ui64 seed) {
     LL_ASSERT(s, "[s] cannot be nullptr. CityHash64WithSeed(ll_string_t s, const len_t len, const ui64 seed)");
     return CityHash64WithSeeds(s, len, k2, seed);
 }
 
-llcpp::Hash CityHash64WithSeeds(ll_string_t s, const len_t len, const ui64 seed0, const ui64 seed1) {
+Hash CityHash64WithSeeds(ll_string_t s, const len_t len, const ui64 seed0, const ui64 seed1) {
     LL_ASSERT(s, "[s] cannot be nullptr. CityHash64WithSeeds(ll_string_t s, const len_t len, const ui64 seed0, const ui64 seed1)");
     return HashLen16(CityHash64(s, len).value - seed0, seed1);
 }
