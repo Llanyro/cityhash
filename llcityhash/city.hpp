@@ -82,22 +82,22 @@ __LL_NODISCARD__ __LL_INLINE__ ui64 Uint128Low64(const hash128& x) { return x.fi
 __LL_NODISCARD__ __LL_INLINE__ ui64 Uint128High64(const hash128& x) { return x.second; }
 
 // Hash function for a byte array.
-LL_SHARED_LIB __LL_NODISCARD__ ui64 CityHash64(ll_string_t buf, len_t len);
+LL_SHARED_LIB __LL_NODISCARD__ llcpp::Hash CityHash64(ll_string_t buf, len_t len);
 
 // Hash function for a byte array.  For convenience, a 64-bit seed is also
 // hashed into the result.
-LL_SHARED_LIB __LL_NODISCARD__ ui64 CityHash64WithSeed(ll_string_t buf, const len_t len, const ui64 seed);
+LL_SHARED_LIB __LL_NODISCARD__ llcpp::Hash CityHash64WithSeed(ll_string_t buf, const len_t len, const ui64 seed);
 
 // Hash function for a byte array.  For convenience, two seeds are also
 // hashed into the result.
-LL_SHARED_LIB __LL_NODISCARD__ ui64 CityHash64WithSeeds(ll_string_t buf, const len_t len, const ui64 seed0, const ui64 seed1);
+LL_SHARED_LIB __LL_NODISCARD__ llcpp::Hash CityHash64WithSeeds(ll_string_t buf, const len_t len, const ui64 seed0, const ui64 seed1);
 
 template<class T, class tmp = llcpp::traits::template_types<T>, class W = typename tmp::cinput>
-__LL_NODISCARD__ __LL_INLINE__ ui64 CityHash64(W data) __LL_EXCEPT__ {
+__LL_NODISCARD__ __LL_INLINE__ llcpp::Hash CityHash64(W data) __LL_EXCEPT__ {
 	return city::CityHash64(&data, sizeof(T));
 }
 template<class T, len_t N>
-__LL_NODISCARD__ __LL_INLINE__ ui64 CityHash64(const T(&data)[N]) __LL_EXCEPT__ {
+__LL_NODISCARD__ __LL_INLINE__ llcpp::Hash CityHash64(const T(&data)[N]) __LL_EXCEPT__ {
 	return city::CityHash64(data, sizeof(T) * N);
 }
 
