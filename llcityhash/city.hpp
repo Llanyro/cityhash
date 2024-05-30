@@ -70,66 +70,75 @@
 #ifndef LLCPP_CITY_HASH_HPP_
 #define LLCPP_CITY_HASH_HPP_
 
-#include <llanylib/traits.hpp>
-
-#include <utility>
+#include <llanylib/cityhash.hpp>
 
 namespace city {
 
-using hash128 = std::pair<ui64, ui64>;
-using Hash = llcpp::meta::Hash;
+namespace traits = llcpp::meta::traits;
+namespace hash = llcpp::meta::hash;
 
-__LL_NODISCARD__ __LL_INLINE__ ui64 Uint128Low64(const hash128& x) { return x.first; }
-__LL_NODISCARD__ __LL_INLINE__ ui64 Uint128High64(const hash128& x) { return x.second; }
+using OptionalHash128 = std::optional<hash::city::Hash128>;
+using OptionalHash32 = std::optional<ui32>;
+
+#pragma region Hash32
+// Hash function for a byte array.  Most useful in 32-bit binaries.
+LL_SHARED_LIB __LL_NODISCARD__ OptionalHash32 CityHash32(ll_string_t buf, len_t len);
+
+#pragma endregion
+#pragma region Hash64
 
 // Hash function for a byte array.
-LL_SHARED_LIB __LL_NODISCARD__ Hash CityHash64(ll_string_t buf, len_t len);
+LL_SHARED_LIB __LL_NODISCARD__ hash::OptionalHash64 CityHash64(ll_string_t buf, len_t len);
 
 // Hash function for a byte array.  For convenience, a 64-bit seed is also
 // hashed into the result.
-LL_SHARED_LIB __LL_NODISCARD__ Hash CityHash64WithSeed(ll_string_t buf, const len_t len, const ui64 seed);
+LL_SHARED_LIB __LL_NODISCARD__ hash::OptionalHash64 CityHash64WithSeed(ll_string_t buf, const len_t len, const ui64 seed);
 
 // Hash function for a byte array.  For convenience, two seeds are also
 // hashed into the result.
-LL_SHARED_LIB __LL_NODISCARD__ Hash CityHash64WithSeeds(ll_string_t buf, const len_t len, const ui64 seed0, const ui64 seed1);
+LL_SHARED_LIB __LL_NODISCARD__ hash::OptionalHash64 CityHash64WithSeeds(ll_string_t buf, const len_t len, const ui64 seed0, const ui64 seed1);
 
-template<class T, class tmp = llcpp::meta::traits::template_types<T>, class W = typename tmp::cinput>
-__LL_NODISCARD__ __LL_INLINE__ Hash CityHash64(W data) __LL_EXCEPT__ {
-	return city::CityHash64(reinterpret_cast<ll_string_t>(&data), sizeof(T));
+#pragma region Objects
+template<class U, class W = traits::template_types<U>>
+__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64(typename W::cinput data) __LL_EXCEPT__ {
+	return city::CityHash64(reinterpret_cast<ll_string_t>(&data), sizeof(U));
+}
+template<class U, class W = traits::template_types<U>>
+__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64WithSeed(typename W::cinput data, const ui64 seed) __LL_EXCEPT__ {
+	return city::CityHash64WithSeed(reinterpret_cast<ll_string_t>(&data), sizeof(U), seed);
+}
+template<class U, class W = traits::template_types<U>>
+__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64WithSeeds(typename W::cinput data, const ui64 seed0, const ui64 seed1) __LL_EXCEPT__ {
+	return city::CityHash64WithSeeds(reinterpret_cast<ll_string_t>(&data), sizeof(U), seed0, seed1);
+}
+
+#pragma endregion
+#pragma region Array
+template<class T, len_t N>
+__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64(const T(&data)[N]) __LL_EXCEPT__ {
+	return city::CityHash64(reinterpret_cast<ll_string_t>(data), sizeof(T) * N);
 }
 template<class T, len_t N>
-__LL_NODISCARD__ __LL_INLINE__ Hash CityHash64(const T(&data)[N]) __LL_EXCEPT__ {
-	return city::CityHash64(data, sizeof(T) * N);
+__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64WithSeed(const T(&data)[N], const ui64 seed) __LL_EXCEPT__ {
+	return city::CityHash64WithSeed(reinterpret_cast<ll_string_t>(data), sizeof(T) * N, seed);
+}
+template<class T, len_t N>
+__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64WithSeeds(const T(&data)[N], const ui64 seed0, const ui64 seed1) __LL_EXCEPT__ {
+	return city::CityHash64WithSeeds(reinterpret_cast<ll_string_t>(data), sizeof(T) * N, seed0, seed1);
 }
 
-// Proxy linkage for C
-LL_SHARED_LIB void CityHash128(ll_string_t s, len_t len, hash128& result);
+#pragma endregion
 
-// Proxy linkage for C
-LL_SHARED_LIB void CityHash128WithSeed(ll_string_t s, len_t len, const hash128& seed, hash128& result);
-
-// Hash function for a byte array.  Most useful in 32-bit binaries.
-LL_SHARED_LIB __LL_NODISCARD__ ui32 CityHash32(ll_string_t buf, len_t len);
-
-// Hash 128 input bits down to 64 bits of output.
-// This is intended to be a reasonably good hash function.
-LL_SHARED_LIB __LL_NODISCARD__ __LL_INLINE__ ui64 Hash128to64(const hash128& x) {
-  // Murmur-inspired hashing.
-  const ui64 kMul = 0x9ddfea08eb382d69ULL;
-  ui64 a = (Uint128Low64(x) ^ Uint128High64(x)) * kMul;
-  a ^= (a >> 47);
-  ui64 b = (Uint128High64(x) ^ a) * kMul;
-  b ^= (b >> 47);
-  b *= kMul;
-  return b;
-}
-
+#pragma endregion
+#pragma region Hash128
 // Hash function for a byte array.
-LL_SHARED_LIB __LL_NODISCARD__ hash128 CityHash128(ll_string_t s, len_t len);
+LL_SHARED_LIB __LL_NODISCARD__ OptionalHash128 CityHash128(ll_string_t s, len_t len);
 
 // Hash function for a byte array.  For convenience, a 128-bit seed is also
 // hashed into the result.
-LL_SHARED_LIB __LL_NODISCARD__ hash128 CityHash128WithSeed(ll_string_t s, len_t len, const hash128& seed);
+LL_SHARED_LIB __LL_NODISCARD__ OptionalHash128 CityHash128WithSeed(ll_string_t s, len_t len, const hash::city::Hash128& seed);
+
+#pragma endregion
 
 } /* namespace city */
 
