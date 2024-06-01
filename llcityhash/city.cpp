@@ -56,6 +56,7 @@
 	#endif // __LL_UNSECURE_FUNCTIONS__
 #endif // WINDOWS_SYSTEM
 
+namespace llcpp {
 namespace city {
 
 ui64 UNALIGNED_LOAD64(ll_string_t p) {
@@ -141,13 +142,13 @@ ui32 Fetch32(ll_string_t p) {
 }
 
 // Some primes between 2^63 and 2^64 for various uses.
-constexpr ui64 k0 = 0xc3a5c85c97cb3127ULL;
-constexpr ui64 k1 = 0xb492b66fbe98f273ULL;
-constexpr ui64 k2 = 0x9ae16a3b2f90404fULL;
+constexpr ui64 k0 = llcpp::meta::hash::city::CityHash::k0;
+constexpr ui64 k1 = llcpp::meta::hash::city::CityHash::k1;
+constexpr ui64 k2 = llcpp::meta::hash::city::CityHash::k2;
 
 // Magic numbers for 32-bit hashing.  Copied from Murmur3.
-constexpr ui32 c1 = 0xcc9e2d51;
-constexpr ui32 c2 = 0x1b873593;
+constexpr ui32 c1 = llcpp::meta::hash::city::CityHash::c1;
+constexpr ui32 c2 = llcpp::meta::hash::city::CityHash::c2;
 
 #pragma region Priv
 #undef PERMUTE3
@@ -222,7 +223,7 @@ ui64 ShiftMix(const ui64 val) {
 }
 
 //ui64 HashLen16(const ui64 u, const ui64 v) {
-//    return hash::city::Hash128(u, v).toui64();
+//    return hash::Hash128(u, v).toui64();
 //}
 
 ui64 HashLen16(const ui64 u, const ui64 v, const ui64 mul) {
@@ -296,18 +297,18 @@ ui64 HashLen33to64(ll_string_t s, const len_t len) {
 
 // Return a 16-byte hash for 48 bytes.  Quick and dirty.
 // Callers do best to use "random-looking" values for a and b.
-hash::city::Hash128 WeakHashLen32WithSeeds(const ui64 w, const ui64 x, const ui64 y, const ui64 z, ui64 a, ui64 b) {
+hash::Hash128 WeakHashLen32WithSeeds(const ui64 w, const ui64 x, const ui64 y, const ui64 z, ui64 a, ui64 b) {
 	a += w;
 	b = Rotate(b + a + z, 21);
 	ui64 c = a;
 	a += x;
 	a += y;
 	b += Rotate(a, 44);
-	return hash::city::Hash128(a + z, b + c);
+	return hash::Hash128(a + z, b + c);
 }
 
 // Return a 16-byte hash for s[0] ... s[31], a, and b.  Quick and dirty.
-hash::city::Hash128 WeakHashLen32WithSeeds(ll_string_t s, const ui64 a, const ui64 b) {
+hash::Hash128 WeakHashLen32WithSeeds(ll_string_t s, const ui64 a, const ui64 b) {
 	return WeakHashLen32WithSeeds(
 		Fetch64(s), Fetch64(s + 8),
 		Fetch64(s + 16), Fetch64(s + 24),
@@ -316,7 +317,7 @@ hash::city::Hash128 WeakHashLen32WithSeeds(ll_string_t s, const ui64 a, const ui
 
 // A subroutine for CityHash128().  Returns a decent 128-bit hash for strings
 // of any length representable in signed long.  Based on City and Murmur.
-hash::city::Hash128 CityMurmur(ll_string_t s, len_t len, const hash::city::Hash128& seed) {
+hash::Hash128 CityMurmur(ll_string_t s, len_t len, const hash::Hash128& seed) {
 	ui64 a = seed.getLow();
 	ui64 b = seed.getHigh();
 	ui64 c = 0;
@@ -327,8 +328,8 @@ hash::city::Hash128 CityMurmur(ll_string_t s, len_t len, const hash::city::Hash1
 		d = ShiftMix(a + (len >= 8 ? Fetch64(s) : c));
 	}
 	else {
-		c = hash::city::Hash128(Fetch64(s + len - 8) + k1, a).toui64();
-		d = hash::city::Hash128(b + len, c + Fetch64(s + len - 16)).toui64();
+		c = hash::Hash128(Fetch64(s + len - 8) + k1, a);
+		d = hash::Hash128(b + len, c + Fetch64(s + len - 16));
 		a += d;
 		// len > 16 here, so do...while is safe
 		do {
@@ -342,9 +343,9 @@ hash::city::Hash128 CityMurmur(ll_string_t s, len_t len, const hash::city::Hash1
 			len -= 16;
 		} while (len > 16);
 	}
-	a = hash::city::Hash128(a, c).toui64();
-	b = hash::city::Hash128(d, b).toui64();
-	return hash::city::Hash128(a ^ b, hash::city::Hash128(b, a).toui64());
+	a = hash::Hash128(a, c);
+	b = hash::Hash128(d, b);
+	return hash::Hash128(a ^ b, hash::Hash128(b, a));
 }
 
 #pragma endregion
@@ -434,9 +435,9 @@ hash::OptionalHash64 CityHash64(ll_string_t s, len_t len) {
 	// loop we keep 56 bytes of state: v, w, x, y, and z.
 	ui64 x = Fetch64(s + len - 40);
 	ui64 y = Fetch64(s + len - 16) + Fetch64(s + len - 56);
-	ui64 z = hash::city::Hash128(Fetch64(s + len - 48) + len, Fetch64(s + len - 24)).toui64();
-	hash::city::Hash128 v = WeakHashLen32WithSeeds(s + len - 64, len, z);
-	hash::city::Hash128 w = WeakHashLen32WithSeeds(s + len - 32, y + k1, x);
+	ui64 z = hash::Hash128(Fetch64(s + len - 48) + len, Fetch64(s + len - 24));
+	hash::Hash128 v = WeakHashLen32WithSeeds(s + len - 64, len, z);
+	hash::Hash128 w = WeakHashLen32WithSeeds(s + len - 32, y + k1, x);
 	x = x * k1 + Fetch64(s);
 
 	// Decrease len to the nearest multiple of 64, and operate on 64-byte chunks.
@@ -453,10 +454,10 @@ hash::OptionalHash64 CityHash64(ll_string_t s, len_t len) {
 		s += 64;
 		len -= 64;
 	} while (len != 0);
-	return hash::city::Hash128(
-		hash::city::Hash128(v.getLow(), w.getLow()).toui64() + ShiftMix(y) * k1 + z,
-		hash::city::Hash128(v.getHigh(), w.getHigh()).toui64() + x
-	).toui64();
+	return hash::Hash128(
+		hash::Hash128(v.getLow(), w.getLow()) + ShiftMix(y) * k1 + z,
+		hash::Hash128(v.getHigh(), w.getHigh()) + x
+	).toHash64();
 }
 
 hash::OptionalHash64 CityHash64WithSeed(ll_string_t s, const len_t len, const ui64 seed) {
@@ -465,24 +466,24 @@ hash::OptionalHash64 CityHash64WithSeed(ll_string_t s, const len_t len, const ui
 
 hash::OptionalHash64 CityHash64WithSeeds(ll_string_t s, const len_t len, const ui64 seed0, const ui64 seed1) {
 	if (!s) return std::nullopt;
-	return hash::city::Hash128((*CityHash64(s, len)).get() - seed0, seed1).toui64();
+	return hash::Hash128((*CityHash64(s, len)).get() - seed0, seed1).toHash64();
 }
 
 #pragma endregion
 #pragma region Hash128
-OptionalHash128 CityHash128(ll_string_t s, len_t len) {
+hash::OptionalHash128 CityHash128(ll_string_t s, len_t len) {
 	if (!s) return std::nullopt;
 	return len >= 16 ?
-		CityHash128WithSeed(s + 16, len - 16, hash::city::Hash128(Fetch64(s), Fetch64(s + 8) + k0)) :
-		CityHash128WithSeed(s, len, hash::city::Hash128(k0, k1));
+		CityHash128WithSeed(s + 16, len - 16, hash::Hash128(Fetch64(s), Fetch64(s + 8) + k0)) :
+		CityHash128WithSeed(s, len, hash::Hash128(k0, k1));
 }
-OptionalHash128 CityHash128WithSeed(ll_string_t s, len_t len, const hash::city::Hash128& seed) {
+hash::OptionalHash128 CityHash128WithSeed(ll_string_t s, len_t len, const hash::Hash128& seed) {
 	if (len < 128)
 		return CityMurmur(s, len, seed);
 
 	// We expect len >= 128 to be the common case.  Keep 56 bytes of state:
 	// v, w, x, y, and z.
-	hash::city::Hash128 v, w;
+	hash::Hash128 v, w;
 	ui64 x = seed.getLow();
 	ui64 y = seed.getHigh();
 	ui64 z = len * k1;
@@ -532,12 +533,12 @@ OptionalHash128 CityHash128WithSeed(ll_string_t s, len_t len, const hash::city::
 	// At this point our 56 bytes of state should contain more than
 	// enough information for a strong 128-bit hash.  We use two
 	// different 56-byte-to-8-byte hashes to get a 16-byte final result.
-	x = hash::city::Hash128(x, v.getLow()).toui64();
-	y = hash::city::Hash128(y + z, w.getLow()).toui64();
-	return hash::city::Hash128(
-		hash::city::Hash128(x + v.getHigh(), w.getHigh()).toui64() + y,
-		hash::city::Hash128(x + w.getHigh(), y + v.getHigh()
-	).toui64());
+	x = hash::Hash128(x, v.getLow());
+	y = hash::Hash128(y + z, w.getLow());
+	return hash::Hash128(
+		hash::Hash128(x + v.getHigh(), w.getHigh()) + y,
+		hash::Hash128(x + w.getHigh(), y + v.getHigh()
+	));
 }
 
 #pragma endregion
@@ -678,7 +679,8 @@ hash128 CityHashCrc128(ll_string_t s, len_t len) {
 
 #endif
 
-} /* namespace city */
+} // namespace city
+} // namespace llcpp
 
 #if defined(WINDOWS_SYSTEM)
 	#pragma warning(pop)

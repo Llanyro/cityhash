@@ -72,12 +72,12 @@
 
 #include <llanylib/cityhash.hpp>
 
+namespace llcpp {
 namespace city {
 
 namespace traits = llcpp::meta::traits;
 namespace hash = llcpp::meta::hash;
 
-using OptionalHash128 = std::optional<hash::city::Hash128>;
 using OptionalHash32 = std::optional<ui32>;
 
 #pragma region Hash32
@@ -132,14 +132,15 @@ __LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64WithSeeds(const T(
 #pragma endregion
 #pragma region Hash128
 // Hash function for a byte array.
-LL_SHARED_LIB __LL_NODISCARD__ OptionalHash128 CityHash128(ll_string_t s, len_t len);
+LL_SHARED_LIB __LL_NODISCARD__ hash::OptionalHash128 CityHash128(ll_string_t s, len_t len);
 
 // Hash function for a byte array.  For convenience, a 128-bit seed is also
 // hashed into the result.
-LL_SHARED_LIB __LL_NODISCARD__ OptionalHash128 CityHash128WithSeed(ll_string_t s, len_t len, const hash::city::Hash128& seed);
+LL_SHARED_LIB __LL_NODISCARD__ hash::OptionalHash128 CityHash128WithSeed(ll_string_t s, len_t len, const hash::Hash128& seed);
 
 #pragma endregion
 
-} /* namespace city */
+} // namespace city
+} // namespace llcpp
 
 #endif  // LLCPP_CITY_HASH_HPP_
