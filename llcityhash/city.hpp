@@ -71,6 +71,7 @@
 #define LLCPP_CITY_HASH_HPP_
 
 #include <llanylib/cityhash.hpp>
+#include <llanylib/hash_tools.hpp>
 
 namespace llcpp {
 namespace city {
@@ -194,6 +195,8 @@ __LL_VAR_INLINE__ constexpr hash::Hash64FunctionPack CITYHASH_FUNCTION_PACK = {
 	CITYHASH_StrTypeidHash64Function,
 	CITYHASH_wStrTypeidHash64Function
 };
+
+__LL_VAR_INLINE__ constexpr hash::HashTool CITYHASH_TOOLS = hash::HashTool<>(CITYHASH_FUNCTION_PACK);
 
 } // namespace city
 } // namespace llcpp
