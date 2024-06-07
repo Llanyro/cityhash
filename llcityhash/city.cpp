@@ -49,6 +49,8 @@
 
 #include <cstring>  // for std::memcpy and std::memset
 
+#include <string>
+
 #if defined(WINDOWS_SYSTEM)
 	#pragma warning(push)
 	#if defined(__LL_SPECTRE_FUNCTIONS__)
@@ -459,11 +461,42 @@ hash::OptionalHash64 CityHash64(ll_string_t s, len_t len) __LL_EXCEPT__ {
 		hash::Hash128(v.getHigh(), w.getHigh()) + x
 	).toHash64();
 }
+hash::OptionalHash64 CityHash64(ll_wstring_t str, len_t size) __LL_EXCEPT__ {
+	constexpr len_t PARSER_BUFFER_SIZE = 512;
+	ll_char_t buffer[PARSER_BUFFER_SIZE]{};
+	len_t buffer_len = sizeof(ll_wchar_t) * size;
+	if (buffer_len > PARSER_BUFFER_SIZE) return hash::INVALID_HASH64;
+
+	ll_char_t* i = buffer;
+	for (ll_wstring_t data_end = str + size; str < data_end; ++str)
+		hash::basic_type_hash::conversor<ll_wchar_t>(i, *str);
+	return llcpp::city::CityHash64(buffer, buffer_len);
+}
+hash::OptionalHash64 CityHash64(const std::string& str) __LL_EXCEPT__ {
+	return CityHash64(str.c_str(), str.size());
+}
+hash::OptionalHash64 CityHash64(const std::wstring& str) __LL_EXCEPT__ {
+	return CityHash64(str.c_str(), str.size());
+}
+hash::OptionalHash64 CityHash64(const meta::StrPair& str) __LL_EXCEPT__ {
+	return CityHash64(str.begin(), str.len());
+}
+hash::OptionalHash64 CityHash64(const meta::wStrPair& str) __LL_EXCEPT__ {
+	return CityHash64(str.begin(), str.len());
+}
+hash::OptionalHash64 CityHash64(const meta::Str& str) __LL_EXCEPT__ {
+	return CityHash64(str.begin(), str.len());
+}
+hash::OptionalHash64 CityHash64(const meta::wStr& str) __LL_EXCEPT__ {
+	return CityHash64(str.begin(), str.len());
+}
+hash::OptionalHash64 CityHash64(const hash::Hash64& h) __LL_EXCEPT__ {
+	return hash::basic_type_hash::hashValue<ui64>(h.get(), llcpp::city::CityHash64);
+}
 
 hash::OptionalHash64 CityHash64WithSeed(ll_string_t s, const len_t len, const ui64 seed) __LL_EXCEPT__ {
 	return CityHash64WithSeeds(s, len, k2, seed);
 }
-
 hash::OptionalHash64 CityHash64WithSeeds(ll_string_t s, const len_t len, const ui64 seed0, const ui64 seed1) __LL_EXCEPT__ {
 	if (!s) return std::nullopt;
 	return hash::Hash128((*CityHash64(s, len)).get() - seed0, seed1).toHash64();
@@ -567,7 +600,7 @@ void CityHashCrc256Long(ll_string_t s, len_t len,
 	len -= iters * 240;
 	do {
 #undef CHUNK
-#define CHUNK(r)                                \
+#define CHUNK(r)                            \
 PERMUTE3(x, z, y);                          \
 b += Fetch64(s);                            \
 c += Fetch64(s + 8);                        \
