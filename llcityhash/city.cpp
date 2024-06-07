@@ -133,11 +133,11 @@ ui32 UNALIGNED_LOAD32(ll_string_t p) {
 #endif
 #endif
 
-ui64 Fetch64(ll_string_t p) {
+ui64 Fetch64(ll_string_t p) __LL_EXCEPT__ {
 	return ui64_in_expected_order(UNALIGNED_LOAD64(p));
 }
 
-ui32 Fetch32(ll_string_t p) {
+ui32 Fetch32(ll_string_t p) __LL_EXCEPT__ {
 	return ui32_in_expected_order(UNALIGNED_LOAD32(p));
 }
 
@@ -155,7 +155,7 @@ constexpr ui32 c2 = llcpp::meta::hash::city::CityHash::c2;
 #define PERMUTE3(a, b, c) do { std::swap(a, b); std::swap(a, c); } while (0)
 
 // A 32-bit to 32-bit integer hash copied from Murmur3.
-ui32 fmix(ui32 h) {
+ui32 fmix(ui32 h) __LL_EXCEPT__ {
 	h ^= h >> 16;
 	h *= 0x85ebca6b;
 	h ^= h >> 13;
@@ -164,12 +164,12 @@ ui32 fmix(ui32 h) {
 	return h;
 }
 
-ui32 Rotate32(const ui32 val, const i32 shift) {
+ui32 Rotate32(const ui32 val, const i32 shift) __LL_EXCEPT__ {
 	// Avoid shifting by 32: doing so yields an undefined result.
 	return shift == 0 ? val : ((val >> shift) | (val << (32 - shift)));
 }
 
-ui32 Mur(ui32 a, ui32 h) {
+ui32 Mur(ui32 a, ui32 h) __LL_EXCEPT__ {
 	// Helper from Murmur3 for combining two 32-bit values.
 	a *= c1;
 	a = Rotate32(a, 17);
@@ -179,7 +179,7 @@ ui32 Mur(ui32 a, ui32 h) {
 	return h * 5 + 0xe6546b64;
 }
 
-ui32 Hash32Len13to24(ll_string_t s, const len_t len) {
+ui32 Hash32Len13to24(ll_string_t s, const len_t len) __LL_EXCEPT__ {
 	ui32 a = Fetch32(s - 4 + (len >> 1));
 	ui32 b = Fetch32(s + 4);
 	ui32 c = Fetch32(s + len - 8);
@@ -191,7 +191,7 @@ ui32 Hash32Len13to24(ll_string_t s, const len_t len) {
 	return fmix(Mur(f, Mur(e, Mur(d, Mur(c, Mur(b, Mur(a, h)))))));
 }
 
-ui32 Hash32Len0to4(ll_string_t s, const len_t len) {
+ui32 Hash32Len0to4(ll_string_t s, const len_t len) __LL_EXCEPT__ {
 	ui32 b = 0;
 	ui32 c = 9;
 	for (len_t i = 0; i < len; ++i) {
@@ -202,7 +202,7 @@ ui32 Hash32Len0to4(ll_string_t s, const len_t len) {
 	return fmix(Mur(b, Mur(static_cast<ui32>(len), c)));
 }
 
-ui32 Hash32Len5to12(ll_string_t s, const len_t len) {
+ui32 Hash32Len5to12(ll_string_t s, const len_t len) __LL_EXCEPT__ {
 	ui32 a = static_cast<ui32>(len), b = a * 5, c = 9, d = b;
 	a += Fetch32(s);
 	b += Fetch32(s + len - 4);
@@ -213,20 +213,20 @@ ui32 Hash32Len5to12(ll_string_t s, const len_t len) {
 
 // Bitwise right rotate.  Normally this will compile to a single
 // instruction, especially if the shift is a manifest constant.
-ui64 Rotate(const ui64 val, const i32 shift) {
+ui64 Rotate(const ui64 val, const i32 shift) __LL_EXCEPT__ {
 	// Avoid shifting by 64: doing so yields an undefined result.
 	return shift == 0 ? val : ((val >> shift) | (val << (64 - shift)));
 }
 
-ui64 ShiftMix(const ui64 val) {
+ui64 ShiftMix(const ui64 val) __LL_EXCEPT__ {
 	return val ^ (val >> 47);
 }
 
-//ui64 HashLen16(const ui64 u, const ui64 v) {
+//ui64 HashLen16(const ui64 u, const ui64 v) __LL_EXCEPT__ {
 //    return hash::Hash128(u, v).toui64();
 //}
 
-ui64 HashLen16(const ui64 u, const ui64 v, const ui64 mul) {
+ui64 HashLen16(const ui64 u, const ui64 v, const ui64 mul) __LL_EXCEPT__ {
 	// Murmur-inspired hashing.
 	ui64 a = (u ^ v) * mul;
 	a ^= (a >> 47);
@@ -236,7 +236,7 @@ ui64 HashLen16(const ui64 u, const ui64 v, const ui64 mul) {
 	return b;
 }
 
-ui64 HashLen0to16(ll_string_t s, const len_t len) {
+ui64 HashLen0to16(ll_string_t s, const len_t len) __LL_EXCEPT__ {
 	if (len >= 8) {
 		ui64 mul = k2 + len * 2;
 		ui64 a = Fetch64(s) + k2;
@@ -263,7 +263,7 @@ ui64 HashLen0to16(ll_string_t s, const len_t len) {
 
 // This probably works well for 16-byte strings as well, but it may be overkill
 // in that case.
-ui64 HashLen17to32(ll_string_t s, const len_t len) {
+ui64 HashLen17to32(ll_string_t s, const len_t len) __LL_EXCEPT__ {
 	ui64 mul = k2 + len * 2;
 	ui64 a = Fetch64(s) * k1;
 	ui64 b = Fetch64(s + 8);
@@ -274,7 +274,7 @@ ui64 HashLen17to32(ll_string_t s, const len_t len) {
 }
 
 // Return an 8-byte hash for 33 to 64 bytes.
-ui64 HashLen33to64(ll_string_t s, const len_t len) {
+ui64 HashLen33to64(ll_string_t s, const len_t len) __LL_EXCEPT__ {
 	ui64 mul = k2 + len * 2;
 	ui64 a = Fetch64(s) * k2;
 	ui64 b = Fetch64(s + 8);
@@ -297,7 +297,7 @@ ui64 HashLen33to64(ll_string_t s, const len_t len) {
 
 // Return a 16-byte hash for 48 bytes.  Quick and dirty.
 // Callers do best to use "random-looking" values for a and b.
-hash::Hash128 WeakHashLen32WithSeeds(const ui64 w, const ui64 x, const ui64 y, const ui64 z, ui64 a, ui64 b) {
+hash::Hash128 WeakHashLen32WithSeeds(const ui64 w, const ui64 x, const ui64 y, const ui64 z, ui64 a, ui64 b) __LL_EXCEPT__ {
 	a += w;
 	b = Rotate(b + a + z, 21);
 	ui64 c = a;
@@ -308,7 +308,7 @@ hash::Hash128 WeakHashLen32WithSeeds(const ui64 w, const ui64 x, const ui64 y, c
 }
 
 // Return a 16-byte hash for s[0] ... s[31], a, and b.  Quick and dirty.
-hash::Hash128 WeakHashLen32WithSeeds(ll_string_t s, const ui64 a, const ui64 b) {
+hash::Hash128 WeakHashLen32WithSeeds(ll_string_t s, const ui64 a, const ui64 b) __LL_EXCEPT__ {
 	return WeakHashLen32WithSeeds(
 		Fetch64(s), Fetch64(s + 8),
 		Fetch64(s + 16), Fetch64(s + 24),
@@ -317,7 +317,7 @@ hash::Hash128 WeakHashLen32WithSeeds(ll_string_t s, const ui64 a, const ui64 b) 
 
 // A subroutine for CityHash128().  Returns a decent 128-bit hash for strings
 // of any length representable in signed long.  Based on City and Murmur.
-hash::Hash128 CityMurmur(ll_string_t s, len_t len, const hash::Hash128& seed) {
+hash::Hash128 CityMurmur(ll_string_t s, len_t len, const hash::Hash128& seed) __LL_EXCEPT__ {
 	ui64 a = seed.getLow();
 	ui64 b = seed.getHigh();
 	ui64 c = 0;
@@ -350,8 +350,8 @@ hash::Hash128 CityMurmur(ll_string_t s, len_t len, const hash::Hash128& seed) {
 
 #pragma endregion
 #pragma region Hash32
-OptionalHash32 CityHash32(ll_string_t s, const len_t len) {
-	if (!s) return std::nullopt;
+hash::OptionalHash32 CityHash32(ll_string_t s, const len_t len) __LL_EXCEPT__ {
+	if (!s) return hash::INVALID_HASH32;
 
 	if (len <= 24) {
 		return len <= 12 ?
@@ -423,7 +423,7 @@ OptionalHash32 CityHash32(ll_string_t s, const len_t len) {
 
 #pragma endregion
 #pragma region Hash64
-hash::OptionalHash64 CityHash64(ll_string_t s, len_t len) {
+hash::OptionalHash64 CityHash64(ll_string_t s, len_t len) __LL_EXCEPT__ {
 	if (!s) return std::nullopt;
 	if (len <= 32) {
 		if (len <= 16) return HashLen0to16(s, len);
@@ -460,24 +460,24 @@ hash::OptionalHash64 CityHash64(ll_string_t s, len_t len) {
 	).toHash64();
 }
 
-hash::OptionalHash64 CityHash64WithSeed(ll_string_t s, const len_t len, const ui64 seed) {
+hash::OptionalHash64 CityHash64WithSeed(ll_string_t s, const len_t len, const ui64 seed) __LL_EXCEPT__ {
 	return CityHash64WithSeeds(s, len, k2, seed);
 }
 
-hash::OptionalHash64 CityHash64WithSeeds(ll_string_t s, const len_t len, const ui64 seed0, const ui64 seed1) {
+hash::OptionalHash64 CityHash64WithSeeds(ll_string_t s, const len_t len, const ui64 seed0, const ui64 seed1) __LL_EXCEPT__ {
 	if (!s) return std::nullopt;
 	return hash::Hash128((*CityHash64(s, len)).get() - seed0, seed1).toHash64();
 }
 
 #pragma endregion
 #pragma region Hash128
-hash::OptionalHash128 CityHash128(ll_string_t s, len_t len) {
+hash::OptionalHash128 CityHash128(ll_string_t s, len_t len) __LL_EXCEPT__ {
 	if (!s) return std::nullopt;
 	return len >= 16 ?
 		CityHash128WithSeed(s + 16, len - 16, hash::Hash128(Fetch64(s), Fetch64(s + 8) + k0)) :
 		CityHash128WithSeed(s, len, hash::Hash128(k0, k1));
 }
-hash::OptionalHash128 CityHash128WithSeed(ll_string_t s, len_t len, const hash::Hash128& seed) {
+hash::OptionalHash128 CityHash128WithSeed(ll_string_t s, len_t len, const hash::Hash128& seed) __LL_EXCEPT__ {
 	if (len < 128)
 		return CityMurmur(s, len, seed);
 
@@ -549,7 +549,7 @@ hash::OptionalHash128 CityHash128WithSeed(ll_string_t s, len_t len, const hash::
 
 // Requires len >= 240.
 void CityHashCrc256Long(ll_string_t s, len_t len,
-	ui32 seed, ui64* result) {
+	ui32 seed, ui64* result) __LL_EXCEPT__ {
 	ui64 a = Fetch64(s + 56) + k0;
 	ui64 b = Fetch64(s + 96) + k0;
 	ui64 c = result[0] = HashLen16(b, len);
@@ -636,14 +636,14 @@ s += 40
 }
 
 // Requires len < 240.
-void CityHashCrc256Short(ll_string_t s, len_t len, ui64* result) {
+void CityHashCrc256Short(ll_string_t s, len_t len, ui64* result) __LL_EXCEPT__ {
 	char buf[240];
 	std::memcpy(buf, s, len);
 	std::memset(buf + len, 0, 240 - len);
 	CityHashCrc256Long(buf, 240, ~static_cast<ui32>(len), result);
 }
 
-void CityHashCrc256(ll_string_t s, len_t len, ui64* result) {
+void CityHashCrc256(ll_string_t s, len_t len, ui64* result) __LL_EXCEPT__ {
 	if (LIKELY(len >= 240)) {
 		CityHashCrc256Long(s, len, 0, result);
 	}
@@ -652,7 +652,7 @@ void CityHashCrc256(ll_string_t s, len_t len, ui64* result) {
 	}
 }
 
-hash128 CityHashCrc128WithSeed(ll_string_t s, len_t len, hash128 seed) {
+hash128 CityHashCrc128WithSeed(ll_string_t s, len_t len, hash128 seed) __LL_EXCEPT__ {
 	if (len <= 900) {
 		return CityHash128WithSeed(s, len, seed);
 	}
@@ -666,7 +666,7 @@ hash128 CityHashCrc128WithSeed(ll_string_t s, len_t len, hash128 seed) {
 	}
 }
 
-hash128 CityHashCrc128(ll_string_t s, len_t len) {
+hash128 CityHashCrc128(ll_string_t s, len_t len) __LL_EXCEPT__ {
 	if (len <= 900) {
 		return CityHash128(s, len);
 	}
