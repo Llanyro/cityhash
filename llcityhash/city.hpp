@@ -81,55 +81,55 @@ namespace hash = llcpp::meta::hash;
 
 #pragma region Hash32
 // Hash function for a byte array.  Most useful in 32-bit binaries.
-__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash32 CityHash32(ll_string_t buf, len_t len) __LL_EXCEPT__;
+__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash32 CityHash32(ll_string_t buf, len_t len) noexcept;
 
 #pragma endregion
 #pragma region Hash64
 // Hash function for a byte array.
-__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(ll_string_t buf, len_t len) __LL_EXCEPT__;
-__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(ll_wstring_t str, len_t size) __LL_EXCEPT__;
-__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(const std::string& str) __LL_EXCEPT__;
-__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(const std::wstring& str) __LL_EXCEPT__;
-__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(const meta::StrPair& str) __LL_EXCEPT__;
-__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(const meta::wStrPair& str) __LL_EXCEPT__;
-__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(const meta::Str& str) __LL_EXCEPT__;
-__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(const meta::wStr& str) __LL_EXCEPT__;
-__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(const hash::Hash64& h) __LL_EXCEPT__;
+__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(ll_string_t buf, len_t len) noexcept;
+__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(ll_wstring_t str, len_t size) noexcept;
+__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(const std::string& str) noexcept;
+__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(const std::wstring& str) noexcept;
+__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(const meta::StrPair& str) noexcept;
+__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(const meta::wStrPair& str) noexcept;
+__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(const meta::Str& str) noexcept;
+__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(const meta::wStr& str) noexcept;
+__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64(const hash::Hash64& h) noexcept;
 
 // Hash function for a byte array.  For convenience, a 64-bit seed is also
 // hashed into the result.
-__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64WithSeed(ll_string_t buf, const len_t len, const ui64 seed) __LL_EXCEPT__;
+__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64WithSeed(ll_string_t buf, const len_t len, const ui64 seed) noexcept;
 
 // Hash function for a byte array.  For convenience, two seeds are also
 // hashed into the result.
-__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64WithSeeds(ll_string_t buf, const len_t len, const ui64 seed0, const ui64 seed1) __LL_EXCEPT__;
+__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash64 CityHash64WithSeeds(ll_string_t buf, const len_t len, const ui64 seed0, const ui64 seed1) noexcept;
 
 #pragma region Objects
-template<class U, class W = traits::template_types<U>>
-__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64(typename W::cinput data) __LL_EXCEPT__ {
+template<class U, class W = traits::cinput<U>>
+__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64(W data) noexcept {
 	return city::CityHash64(reinterpret_cast<ll_string_t>(&data), sizeof(U));
 }
-template<class U, class W = traits::template_types<U>>
-__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64WithSeed(typename W::cinput data, const ui64 seed) __LL_EXCEPT__ {
+template<class U, class W = traits::cinput<U>>
+__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64WithSeed(W data, const ui64 seed) noexcept {
 	return city::CityHash64WithSeed(reinterpret_cast<ll_string_t>(&data), sizeof(U), seed);
 }
-template<class U, class W = traits::template_types<U>>
-__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64WithSeeds(typename W::cinput data, const ui64 seed0, const ui64 seed1) __LL_EXCEPT__ {
+template<class U, class W = traits::cinput<U>>
+__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64WithSeeds(W data, const ui64 seed0, const ui64 seed1) noexcept {
 	return city::CityHash64WithSeeds(reinterpret_cast<ll_string_t>(&data), sizeof(U), seed0, seed1);
 }
 
 #pragma endregion
 #pragma region Array
 template<class T, len_t N>
-__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64(const T(&data)[N]) __LL_EXCEPT__ {
+__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64(const T(&data)[N]) noexcept {
 	return city::CityHash64(reinterpret_cast<ll_string_t>(data), sizeof(T) * N);
 }
 template<class T, len_t N>
-__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64WithSeed(const T(&data)[N], const ui64 seed) __LL_EXCEPT__ {
+__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64WithSeed(const T(&data)[N], const ui64 seed) noexcept {
 	return city::CityHash64WithSeed(reinterpret_cast<ll_string_t>(data), sizeof(T) * N, seed);
 }
 template<class T, len_t N>
-__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64WithSeeds(const T(&data)[N], const ui64 seed0, const ui64 seed1) __LL_EXCEPT__ {
+__LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64WithSeeds(const T(&data)[N], const ui64 seed0, const ui64 seed1) noexcept {
 	return city::CityHash64WithSeeds(reinterpret_cast<ll_string_t>(data), sizeof(T) * N, seed0, seed1);
 }
 
@@ -138,19 +138,19 @@ __LL_NODISCARD__ __LL_INLINE__ hash::OptionalHash64 CityHash64WithSeeds(const T(
 #pragma endregion
 #pragma region Hash128
 // Hash function for a byte array.
-__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash128 CityHash128(ll_string_t s, len_t len) __LL_EXCEPT__;
+__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash128 CityHash128(ll_string_t s, len_t len) noexcept;
 
 // Hash function for a byte array.  For convenience, a 128-bit seed is also
 // hashed into the result.
-__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash128 CityHash128WithSeed(ll_string_t s, len_t len, const hash::Hash128& seed) __LL_EXCEPT__;
+__LL_NODISCARD__ LL_SHARED_LIB  hash::OptionalHash128 CityHash128WithSeed(ll_string_t s, len_t len, const hash::Hash128& seed) noexcept;
 
 #pragma endregion
 
 namespace __internal__ {
-__LL_NODISCARD__ constexpr hash::OptionalHash64 empty(const void*, const meta::StrTypeid&) __LL_EXCEPT__ {
+__LL_NODISCARD__ constexpr hash::OptionalHash64 empty(const void*, const meta::StrTypeid&) noexcept {
 	return hash::INVALID_HASH64;
 }
-__LL_NODISCARD__ constexpr hash::OptionalHash64 empty(const void*, const meta::wStrTypeid&) __LL_EXCEPT__ {
+__LL_NODISCARD__ constexpr hash::OptionalHash64 empty(const void*, const meta::wStrTypeid&) noexcept {
 	return hash::INVALID_HASH64;
 }
 
